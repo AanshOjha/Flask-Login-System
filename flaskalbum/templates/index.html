@@ -1,0 +1,45 @@
+{% extends "website_layout.html" %}
+{% block content %}
+<!-- ======= Hero Section ======= -->
+  <section id="hero" class="hero d-flex flex-column justify-content-center align-items-center" data-aos="fade" data-aos-delay="1500">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+          <h2>Welcome, <span>{{ name }}</span></h2>
+          <p>This is your Own Photo Album Dummy.</p>
+        </div>
+      </div>
+    </div>
+  </section><!-- End Hero Section -->
+
+  <main id="main" data-aos="fade" data-aos-delay="1500">
+
+    <!-- ======= Gallery Section ======= -->
+    <section id="gallery" class="gallery">
+      <div class="container-fluid">
+        <div class="row gy-4 justify-content-center">
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="gallery-item h-100">
+              <img src="../static/img/gallery/gallery-1.jpg" class="img-fluid" alt="">
+              <div class="gallery-links d-flex flex-column align-items-center justify-content-center">
+                <a href="../static/img/gallery/gallery-1.jpg" title="Gallery 1" class="glightbox preview-link"><i class="bi bi-arrows-angle-expand"></i></a>
+                <div class="text-center">Gallery 1</div>
+              </div>
+            </div>
+          </div><!-- End Gallery Item -->
+        
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="gallery-item h-100">
+              <img src="../static/img/gallery/gallery-2.jpg" class="img-fluid" alt="">
+              <div class="gallery-links d-flex flex-column align-items-center justify-content-center">
+                <a href="../static/img/gallery/gallery-2.jpg" title="Gallery 2" class="glightbox preview-link"><i class="bi bi-arrows-angle-expand"></i></a>
+                <div class="text-center">Gallery 2</div>
+              </div>
+            </div>
+          </div><!-- End Gallery Item -->
+        </div>
+      </div>
+    </section><!-- End Gallery Section -->
+
+  </main><!-- End #main -->
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "login_layout.html" %}
+{% block content %}
+<form method="POST" action="">
+    <div class="form-floating mb-3 info">
+      <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+      <label for="password">New Password</label>
+    </div>
+    <div class="form-floating info">
+      <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+      <label for="confirm_password">Confirm Password</label>
+      <span id="password_error" style="color: red;"></span>
+    </div>
+    <div class="submit">
+        <input type="submit" value="Reset Password">
+    </div>
+</form>
+
+<script>
+    // Get password and confirm password elements
+    var password = document.getElementById("password");
+    var confirm_password = document.getElementById("confirm_password");
+    var password_error = document.getElementById("password_error");
+
+    // Event listener for input in confirm password field
+    confirm_password.addEventListener("input", function() {
+        // Check if passwords match
+        if (confirm_password.value === password.value) {
+            password_error.textContent = "";
+        } else {
+            password_error.textContent = "Passwords do not match.";
+        }
+    });
+</script>
+{% endblock content %}

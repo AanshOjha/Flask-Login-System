@@ -1,0 +1,70 @@
+{% extends "website_layout.html" %}
+{% block content %}
+<main id="main" data-aos="fade" data-aos-delay="1500">
+
+  <!-- ======= End Page Header ======= -->
+  <div class="page-header d-flex align-items-center">
+    <div class="container position-relative">
+      <div class="row d-flex justify-content-center">
+        <div class="col-lg-6 text-center">
+          <h2>My Profile</h2>
+        </div>
+      </div>
+    </div>
+  </div><!-- End Page Header -->
+
+  <!-- ======= profile Section ======= -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <div class="row justify-content-center m-4">
+        <div class="col-md-5 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <img class="profile-img mb-3"  src="../static/img/profile-img.jpg">
+                <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
+
+                <!-- Delete function -->
+                <button  id="askToDelete" onclick="confirmMsg()">Delete your account</button>
+                <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
+                  <input  type="submit" name="delete_acc" value="If sure then only click me!">
+                </form>
+              
+            </div>
+        </div>
+        <div class="col-md-5">
+          <form class="update_profile" method="POST" action="/profile">
+            <div class="form-group m-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" value="{{ name }}" name="name" id="name">
+            </div>
+            <div class="form-group m-3">
+                <label for="username" class="form-label">Username</label>
+                
+                <input type="text" class="form-control" value="{{ username }}" name="username" id="username">
+                
+            </div>
+            <div class="form-group m-3">
+                <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" value="{{ email }}" name="email" id="email">
+            </div>
+            <div class="text-center"><input class="btn btn-primary upload-btn" type="submit" name="update_profile" value="Update Changes"></div>
+            
+            
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </section><!-- End profile Section -->
+
+</main><!-- End #main -->
+
+<!-- Only for Delete Account Function -->
+<script>
+  function confirmMsg() {
+    if (document.getElementById("confirmDelete").style.display === "none") 
+      document.getElementById("confirmDelete").style.display = "block";
+    else if (document.getElementById("confirmDelete").style.display === "block")
+    document.getElementById("confirmDelete").style.display = "none";
+  }
+</script>
+{% endblock %}
