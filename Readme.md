@@ -1,7 +1,23 @@
+# About This Project :
+> It creates a fully functional Login page
+- 2 Tier Architecture (Frontend - Python {Flask}, Backend - Mysql)
+- Includes Sign Up, Login, Home Page
+- It's `Reuseable` : You Pass in secrets using a Env File
+
+# Features
+- Recive Password Reset Emails via Zoho
+- Cam delete account, which deletes your details from the database
+- Password Reset Link Valid for Only 10 min 
+- Passwords are stored as Hash values in the Database
+- Displays Your Provided Username after Login
+- Can change Username, Email, name after login - Displays Changed Attributes instantly !
+- If you try to directly visit homepage 'http://domain-name/home' Redirects you to login Page 'http://domain-name/login'
+
 # Pre-Requisites
 1. You must have MySQL installed in your machine.
 2. First install all python libraries listed in requirements.txt
-3. Then create a .env file and load these environment variables according to you.
+3. You need an `Zoho` Account to test `Reset Password` Feature !
+4. Then create a .env file and load these environment variables according to you.
 ```env
 MYSQL_HOST=
 MYSQL_USER=
@@ -9,9 +25,9 @@ MYSQL_PASS=
 FULLSTACK_DB=
 FULLSTACK_CRED_TABLE=
 ```
-4. Run envconfig.py file to load env variables in system.
-5. Run mysql-config to configure database and tables.
-6. Then run run.py to use the awesome app!
+5. Run envconfig.py file to load env variables in system.
+6. Run mysql-config to configure database and tables.
+7. Then run run.py to use the awesome app!
 
 
 ## Table of Contents
