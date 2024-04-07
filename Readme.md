@@ -19,6 +19,8 @@
 3. You need an `Zoho` Account to test `Reset Password` Feature !
 4. Then create a .env file and load these environment variables according to you.
 ```env
+EMAIL_ID=
+EMAIL_PASS=
 MYSQL_HOST=
 MYSQL_USER=
 MYSQL_PASS=
