@@ -11,7 +11,7 @@
 - Passwords are stored as Hash values in the Database
 - Displays Your Provided Username after Login
 - Can change Username, Email, name after login - Displays Changed Attributes instantly !
-- If you try to directly visit homepage 'http://domain-name/home' Redirects you to login Page 'http://domain-name/login'
+- If you try to directly visit homepage (without logging in) 'http://domain-name/home' Redirects you to login Page 'http://domain-name/login'
 
 # Pre-Requisites
 1. You must have MySQL installed in your machine.
