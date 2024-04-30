@@ -6,8 +6,9 @@
 
 # For Docker 
 ```docker
-docker build . -t <image_name>
-docker run -p 5000:5000 --env-file .\configs\.env --rm --name <container_name> <image_id>
+docker run --name <mysql_container_name> -e MYSQL_ROOT_PASSWORD=<password> --rm --network aansh-net mysql
+docker build . -t <image_id>
+docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
 ```
 
 # Features
