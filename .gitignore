@@ -2,3 +2,5 @@
 
 flaskalbum/__pycache__
 .env
+configs/__pycache__
+configs/.env
