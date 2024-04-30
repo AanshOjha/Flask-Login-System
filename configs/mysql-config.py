@@ -1,11 +1,11 @@
 import mysql.connector
-from envconfig import MYSQL_HOST, MYSQL_USER, MYSQL_PASS, FULLSTACK_DB, FULLSTACK_CRED_TABLE
+from envconfig import MYSQL_HOST, MYSQL_USER, MYSQL_ROOT_PASSWORD, FULLSTACK_DB, FULLSTACK_CRED_TABLE
 
 # Establish a connection to MySQL server
 mydb = mysql.connector.connect(
     host=MYSQL_HOST,
     user=MYSQL_USER,
-    password=MYSQL_PASS
+    password=MYSQL_ROOT_PASSWORD
 )
 
 # Create a cursor object to interact with the database

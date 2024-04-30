@@ -4,6 +4,12 @@
 - Includes Sign Up, Login, Home Page
 - It's `Reuseable` : You Pass in secrets using a Env File
 
+# For Docker 
+```docker
+docker build . -t <image_name>
+docker run -p 5000:5000 --env-file .\configs\.env --rm --name <container_name> <image_id>
+```
+
 # Features
 - Recive Password Reset Emails via Zoho
 - Cam delete account, which deletes your details from the database
