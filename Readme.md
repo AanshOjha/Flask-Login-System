@@ -134,4 +134,10 @@ if __name__ == '__main__':
 ### Now run the run.py file...
 ### Hopefully your website will be visible in your VM's public ip address.
 
+## For Version 2.0
+Session id stored in Redis
+Hosted in AWS
+OTP based auth 
+
+
 Lots Of Efforts from my side 💖 🥵
