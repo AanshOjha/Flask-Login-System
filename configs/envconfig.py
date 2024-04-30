@@ -12,3 +12,5 @@ MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_PASS = os.getenv('MYSQL_PASS')
 FULLSTACK_DB = os.getenv('FULLSTACK_DB')
 FULLSTACK_CRED_TABLE = os.getenv('FULLSTACK_CRED_TABLE')
+
+print("Loaded ENV variables successfully!")

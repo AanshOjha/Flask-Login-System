@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from flaskalbum import mysql, bcrypt, app
 import jwt
 from jwt import encode, decode
-from envconfig import FULLSTACK_CRED_TABLE
+from configs.envconfig import FULLSTACK_CRED_TABLE
 
 class User:
     # Method to register a new user in the database

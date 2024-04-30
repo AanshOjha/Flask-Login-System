@@ -27,7 +27,7 @@ MYSQL_PASS=
 FULLSTACK_DB=
 FULLSTACK_CRED_TABLE=
 ```
-5. Run envconfig.py file to load env variables in system.
+5. Run configs.envconfig.py file to load env variables in system.
 6. Run mysql-config to configure database and tables.
 7. Then run run.py to use the awesome app!
 
