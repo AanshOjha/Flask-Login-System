@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  mysqldb:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    networks:
+      - aansh-net 
+    container_name: mysqldb
+
+  flask-app:
+    build: .\
+    depends_on:
+      - mysqldb
+    ports:
+      - "5000:5000"
+    env_file:
+      - .\.env
+    networks:
+      - aansh-net
+    container_name: flask-app 
+
+networks:
+  aansh-net:
+    name: aansh-net

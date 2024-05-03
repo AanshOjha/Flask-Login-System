@@ -1,7 +1,6 @@
 import smtplib
 from flask import url_for
-from flaskalbum import app
-from configs.envconfig import EMAIL_ID, EMAIL_PASS
+from flaskalbum import EMAIL_ID, EMAIL_PASS, app
 
 # Function to send a password reset email to the user
 def send_reset_email(user):
