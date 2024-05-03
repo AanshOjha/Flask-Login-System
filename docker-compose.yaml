@@ -7,9 +7,12 @@ services:
     networks:
       - aansh-net 
     container_name: mysqldb
+    volumes:
+      - aansh:/var/lib/mysql
 
   flask-app:
     build: .\
+    restart: always
     depends_on:
       - mysqldb
     ports:
@@ -23,3 +26,6 @@ services:
 networks:
   aansh-net:
     name: aansh-net
+
+volumes:
+  aansh:
