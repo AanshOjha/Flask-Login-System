@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-login
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        aansh: flask-login
+    spec:
+      containers:
+      - name: flask-login
+        image: aanshojha/flask-login-app
+        env: 
+          - name: MYSQL_HOST
+            value: 'mysqldb'
+          - name: MYSQL_USER
+            value: 'root'
+          - name: MYSQL_ROOT_PASSWORD
+            value: 'password'
+          - name: FULLSTACK_DB
+            value: 'full_stack'
+          - name: FULLSTACK_CRED_TABLE
+            value: 'creds'
+  selector: 
+    matchLabels:
+      aansh: flask-login

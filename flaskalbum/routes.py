@@ -123,10 +123,6 @@ def reset_token(token):
     # Render the password reset form for GET requests
     return render_template('reset_token.html', title='Reset Password')
 
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('errors/404.html'), 404
-
 @app.route('/contact')
 def contact():
     # Check if the user is logged in, if not, redirect to the login page
@@ -173,3 +169,7 @@ def profile():
     
     else:
         return redirect('/')
+    
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
