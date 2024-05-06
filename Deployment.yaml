@@ -1,20 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-login
+  name: flask-app
 spec:
   replicas: 1
+  strategy: 
+    type: Recreate
   template:
     metadata:
       labels:
-        aansh: flask-login
+        app: flask-app
     spec:
       containers:
-      - name: flask-login
-        image: aanshojha/flask-login-app
+      - name: flask-app
+        image: aanshojha/flask-login-app:latest
         env: 
           - name: MYSQL_HOST
-            value: 'mysqldb'
+            value: 'mysqldb'   # Use service name instead of 'localhost'
           - name: MYSQL_USER
             value: 'root'
           - name: MYSQL_ROOT_PASSWORD
@@ -23,6 +25,23 @@ spec:
             value: 'full_stack'
           - name: FULLSTACK_CRED_TABLE
             value: 'creds'
+        ports: 
+          - containerPort: 5000  # Flask app port
+
+      - name: mysqldb
+        image: mysql:latest
+        env: 
+          - name: MYSQL_ROOT_PASSWORD
+            value: 'password'
+        ports: 
+          - containerPort: 3306  # MySQL port
+        volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
   selector: 
     matchLabels:
-      aansh: flask-login
+      app: flask-app

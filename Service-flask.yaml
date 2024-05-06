@@ -1,11 +1,11 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
-  name:  flask-login
+  name: flask-service
 spec:
   selector:
-    aansh: flask-login
-  type:  LoadBalancer
+    app: flask-app
+  type: LoadBalancer
   ports:
   - protocol: 'TCP'
     port: 80

@@ -1,9 +1,6 @@
-/__pycache__
-configs/__pycache__
+__pycache__
 flaskalbum/__pycache__
 .env
-
-configs/.env
 
 .gitignore
 .dockerignore
