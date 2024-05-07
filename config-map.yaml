@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+data:
+  EMAIL_ID: aanshojha@zohomail.in
+  EMAIL_PASS: alskdj@109
+  MYSQL_HOST: mysqldb.default
+  MYSQL_USER: root
+  MYSQL_ROOT_PASSWORD: password
+  FULLSTACK_DB: full_stack
+  FULLSTACK_CRED_TABLE: creds

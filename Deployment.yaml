@@ -1,11 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: mysql-app
+spec:
+  replicas: 1
+  strategy: 
+    type: Recreate
+  selector: 
+    matchLabels:
+      app: mysql-app
+  template:
+    metadata:
+      labels:
+        app: mysql-app
+    spec:
+      containers:
+        - name: mysqldb
+          image: mysql:latest
+          env: 
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom: 
+                configMapKeyRef:
+                  name: flask-config
+                  key: MYSQL_ROOT_PASSWORD
+          ports: 
+            - containerPort: 3306  # MySQL port
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: flask-app
 spec:
   replicas: 1
   strategy: 
     type: Recreate
+  selector: 
+    matchLabels:
+      app: flask-app
   template:
     metadata:
       labels:
@@ -15,33 +56,40 @@ spec:
       - name: flask-app
         image: aanshojha/flask-login-app:latest
         env: 
+          - name: EMAIL_ID
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: EMAIL_ID
+          - name: EMAIL_PASS
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: EMAIL_PASS
           - name: MYSQL_HOST
-            value: 'mysqldb'   # Use service name instead of 'localhost'
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: MYSQL_HOST
           - name: MYSQL_USER
-            value: 'root'
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: MYSQL_USER
           - name: MYSQL_ROOT_PASSWORD
-            value: 'password'
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: MYSQL_ROOT_PASSWORD
           - name: FULLSTACK_DB
-            value: 'full_stack'
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: FULLSTACK_DB
           - name: FULLSTACK_CRED_TABLE
-            value: 'creds'
+            valueFrom: 
+              configMapKeyRef:
+                name: flask-config
+                key: FULLSTACK_CRED_TABLE
         ports: 
           - containerPort: 5000  # Flask app port
-
-      - name: mysqldb
-        image: mysql:latest
-        env: 
-          - name: MYSQL_ROOT_PASSWORD
-            value: 'password'
-        ports: 
-          - containerPort: 3306  # MySQL port
-        volumeMounts:
-          - name: mysql-persistent-storage
-            mountPath: /var/lib/mysql
-      volumes:
-        - name: mysql-persistent-storage
-          persistentVolumeClaim:
-            claimName: mysql-pv-claim
-  selector: 
-    matchLabels:
-      app: flask-app
