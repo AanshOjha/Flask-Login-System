@@ -4,3 +4,4 @@ flaskalbum/__pycache__
 
 .gitignore
 .dockerignore
+config-map.yaml
