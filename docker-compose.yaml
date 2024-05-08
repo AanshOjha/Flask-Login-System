@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   mysqldb:
-    image: mysql:latest
+    image: mysql:8.0.37-debian
     environment:
       - MYSQL_ROOT_PASSWORD=password
     networks:
@@ -11,14 +11,14 @@ services:
       - aansh:/var/lib/mysql
 
   flask-app:
-    build: .\
+    build: ./
     restart: always # Very important otherwise be ready for hairloss
     depends_on:
       - mysqldb
     ports:
       - "80:5000"
     env_file:
-      - .\.env
+      - ./.env
     networks:
       - aansh-net
     container_name: flask-app 

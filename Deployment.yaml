@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mysqldb
-          image: mysql:latest
+          image: mysql:8.0.37-debian
           env: 
             - name: MYSQL_ROOT_PASSWORD
               valueFrom: 
@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: aanshojha/flask-login-app:latest
+        image: aanshojha/flask-login-app:linux
         env: 
           - name: EMAIL_ID
             valueFrom: 
