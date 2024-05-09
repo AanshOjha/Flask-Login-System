@@ -11,6 +11,40 @@ docker build . -t <image_id>
 docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
 ```
 
+or use docker-compose.yaml
+```console
+docker-compose up
+```
+
+# For K8S
+```console
+kubectl apply -f config-map.yaml -f Mysql-pv.yaml -f service-flask.yaml -f service-mysql.yaml -f Deployment.yaml
+```
+
+1. To pass on env variables, i create a config-map.yaml
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+data:
+  EMAIL_ID: 
+  EMAIL_PASS: 
+  MYSQL_HOST: # Check below for instructions
+  MYSQL_USER: root
+  MYSQL_ROOT_PASSWORD: password
+  FULLSTACK_DB: full_stack
+  FULLSTACK_CRED_TABLE: creds
+```
+
+* Note: 
+* mysqldb.default (mysql-service-name.default) for kubernetes in windows
+* mysqldb (mysql-service-name) for kubernetes in linux (UBUNTU 24.04 LTS)
+
+## What changed in Linux (UBUNTU 24.04)?
+1. I have to changed image to `mysql:8.0.37-debian` instead of `mysql:latest`. Because of error `Fatal glibc error: CPU does not support x86-64-v2`
+2. I have to change MYSQL_HOST value to `mysqldb` instead of `mysqldb.default`
+
 # Features
 - Recive Password Reset Emails via Zoho
 - Cam delete account, which deletes your details from the database
@@ -20,7 +54,7 @@ docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm -
 - Can change Username, Email, name after login - Displays Changed Attributes instantly !
 - If you try to directly visit homepage (without logging in) 'http://domain-name/home' Redirects you to login Page 'http://domain-name/login'
 
-# Pre-Requisites
+# Pre-Requisites (not for K8S)
 1. You must have MySQL installed in your machine.
 2. First install all python libraries listed in requirements.txt
 3. You need an `Zoho` Account to test `Reset Password` Feature !
@@ -28,12 +62,20 @@ docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm -
 ```env
 EMAIL_ID=
 EMAIL_PASS=
-MYSQL_HOST=
-MYSQL_USER=
-MYSQL_ROOT_PASSWORD=
-FULLSTACK_DB=
-FULLSTACK_CRED_TABLE=
+MYSQL_HOST= 
+MYSQL_USER= root
+MYSQL_ROOT_PASSWORD= password
+FULLSTACK_DB= full_stack
+FULLSTACK_CRED_TABLE= creds
 ```
+* Note: 
+MYSQL_HOST value acc to your current use
+* localhost for local dev
+* docker.internal.host for container to host
+* mysqldb (container_name) for container to container
+
+
+
 5. Run configs.envconfig.py file to load env variables in system.
 6. Run mysql-config to configure database and tables.
 7. Then run run.py to use the awesome app!
