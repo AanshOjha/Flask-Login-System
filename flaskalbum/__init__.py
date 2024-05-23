@@ -19,7 +19,6 @@ MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
 FULLSTACK_DB = os.getenv('FULLSTACK_DB')
 FULLSTACK_CRED_TABLE = os.getenv('FULLSTACK_CRED_TABLE')
 
-
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER
 app.config['MYSQL_PASSWORD'] = MYSQL_ROOT_PASSWORD
@@ -33,7 +32,6 @@ with app.app_context():
     mycursor.close()
 
 # MySQL Configuration 
-
 app.config['MYSQL_DB'] = FULLSTACK_DB
 
 from flaskalbum import routes
