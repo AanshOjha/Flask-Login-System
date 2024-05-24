@@ -6,6 +6,18 @@
 
 # For Docker 
 Run these commands, for docker container to host communication.
+* You must have MySQL installed in local machine.
+* Create a .env file and add these things:
+```env
+EMAIL_ID=
+EMAIL_PASS=
+MYSQL_HOST=mysql_cn
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=password
+FULLSTACK_DB=full_stack
+FULLSTACK_CRED_TABLE=creds
+```
+* Run these commands one-by-one
 ```console
 docker build . -t flask-app
 docker network create aansh-net
