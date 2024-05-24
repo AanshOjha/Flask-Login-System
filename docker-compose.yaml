@@ -1,12 +1,12 @@
 version: '3.8'
 services:
-  mysqldb:
+  mysql_cn:
     image: mysql:latest
     environment:
       - MYSQL_ROOT_PASSWORD=password
     networks:
-      - aansh-net 
-    container_name: mysqldb
+      - aansh-net
+    container_name: mysql_cn
     volumes:
       - aansh:/var/lib/mysql
 
@@ -14,14 +14,14 @@ services:
     build: .\
     restart: always # Very important otherwise be ready for hairloss
     depends_on:
-      - mysqldb
+      - mysql_cn
     ports:
-      - "80:5000"
+      - "80:80"
     env_file:
       - .\.env
     networks:
       - aansh-net
-    container_name: flask-app 
+    container_name: flask-app
 
 networks:
   aansh-net:

@@ -5,7 +5,10 @@
 - It's `Reuseable` : You Pass in secrets using a Env File
 
 # For Docker 
-for docker container to container communication
+### using docker-compose
+`docker-compose up`. To stop, `docker-compose down`.
+
+### for docker container to container communication
 * First, create a .env file and load these environment variables according to you.
 ```env
 EMAIL_ID=
@@ -21,7 +24,7 @@ FULLSTACK_CRED_TABLE=creds
 docker network create aansh-net
 docker run --name mysql_cn -e MYSQL_ROOT_PASSWORD=password --rm --network aansh-net mysql
 docker build . -t flask-app
-docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --restart always --network aansh-net flask-app
+docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --network aansh-net flask-app
 ```
 * to stop `docker stop flask_cn mysql_cn` then `docker container prune`
 
