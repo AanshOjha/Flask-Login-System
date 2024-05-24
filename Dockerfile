@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-CMD ["sh", "-c", "python configs/mysql-config.py && python run.py"]
+CMD ["python", "run.py"]
