@@ -5,11 +5,25 @@
 - It's `Reuseable` : You Pass in secrets using a Env File
 
 # For Docker 
-```docker
-docker run --name <mysql_container_name> -e MYSQL_ROOT_PASSWORD=<password> --rm --network aansh-net mysql
-docker build . -t <image_id>
-docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
+for docker container to container communication
+* First, create a .env file and load these environment variables according to you.
+```env
+EMAIL_ID=
+EMAIL_PASS=
+MYSQL_HOST=mysql_cn
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=password
+FULLSTACK_DB=full_stack
+FULLSTACK_CRED_TABLE=creds
 ```
+* Then run this in terminal one-by-one.
+```console
+docker network create aansh-net
+docker run --name mysql_cn -e MYSQL_ROOT_PASSWORD=password --rm --network aansh-net mysql
+docker build . -t flask-app
+docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --restart always --network aansh-net flask-app
+```
+* to stop `docker stop flask_cn mysql_cn` then `docker container prune`
 
 # Features
 - Recive Password Reset Emails via Zoho
@@ -28,11 +42,11 @@ docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm -
 ```env
 EMAIL_ID=
 EMAIL_PASS=
-MYSQL_HOST=
-MYSQL_USER=
-MYSQL_PASS=
-FULLSTACK_DB=
-FULLSTACK_CRED_TABLE=
+MYSQL_HOST=mysql_cn
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=password
+FULLSTACK_DB=full_stack
+FULLSTACK_CRED_TABLE=creds
 ```
 5. Run configs.envconfig.py file to load env variables in system.
 6. Run mysql-config to configure database and tables.
