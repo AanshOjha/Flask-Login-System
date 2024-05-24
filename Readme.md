@@ -4,12 +4,31 @@
 - Includes Sign Up, Login, Home Page
 - It's `Reuseable` : You Pass in secrets using a Env File
 
-# For Docker 
-```docker
-docker run --name <mysql_container_name> -e MYSQL_ROOT_PASSWORD=<password> --rm --network aansh-net mysql
-docker build . -t <image_id>
-docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
+# For Kubernetes
+* Create config-map.yaml
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+data:
+  EMAIL_ID: 
+  EMAIL_PASS: 
+  MYSQL_HOST: mysqldb
+  MYSQL_USER: root
+  MYSQL_ROOT_PASSWORD: password
+  FULLSTACK_DB: full_stack
+  FULLSTACK_CRED_TABLE: creds
 ```
+
+* Then run this in console
+```console
+kubectl apply -f config-map.yaml -f Service-flask.yaml -f Service-mysql.yaml -f Mysql-pv.yaml -f Deployment.yaml
+```
+
+* Check if pods are running.
+* Then `minikube service flask-service`
+
 
 # Features
 - Recive Password Reset Emails via Zoho
