@@ -5,10 +5,11 @@
 - It's `Reuseable` : You Pass in secrets using a Env File
 
 # For Docker 
-```docker
-docker run --name <mysql_container_name> -e MYSQL_ROOT_PASSWORD=<password> --rm --network aansh-net mysql
-docker build . -t <image_id>
-docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
+Run these commands, for docker container to host communication.
+```console
+docker build . -t flask-app
+docker network create aansh-net
+docker run -p 5000:5000 --name flask-cn --env-file .\.env --rm --network aansh-net flask-app
 ```
 
 # Features
