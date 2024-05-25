@@ -4,15 +4,40 @@
 - Includes Sign Up, Login, Home Page
 - It's `Reuseable` : You Pass in secrets using a Env File
 
-# For Docker 
-```docker
-docker run --name <mysql_container_name> -e MYSQL_ROOT_PASSWORD=<password> --rm --network aansh-net mysql
-docker build . -t <image_id>
-docker run -p 5000:5000 --name <container_name> --env-file .\configs\.env --rm --network <network_name> <image_id>
+# For Docker Container to Container
+* `MYSQL_HOST` value 
+1. For local development: `localhost`
+2. For docker container to host: `host.docker.internal`
+3. For docker container to container: `mysql_cn`
+* First, create a .env file and load these environment variables according to you.
+```env
+EMAIL_ID=
+EMAIL_PASS=
+MYSQL_HOST=mysql_cn
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=password
+FULLSTACK_DB=full_stack
+FULLSTACK_CRED_TABLE=creds
+```
+* Then run this in terminal one-by-one, **For Docker container to container**
+```console
+docker network create aansh-net
+docker run --name mysql_cn -e MYSQL_ROOT_PASSWORD=password --rm --network aansh-net mysql
+docker build . -t flask-app
+docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --network aansh-net flask-app
 ```
 
+* * Run these commands one-by-one, **For docker container to host**
+```console
+docker build . -t flask-app
+docker network create aansh-net
+docker run -p 5000:5000 --name flask-cn --env-file .\.env --rm --network aansh-net flask-app
+```
+
+* to stop `docker stop flask_cn mysql_cn` then `docker container prune`
+
 # Features
-- Recive Password Reset Emails via Zoho
+- Recieve Password Reset Emails via Zoho
 - Cam delete account, which deletes your details from the database
 - Password Reset Link Valid for Only 10 min 
 - Passwords are stored as Hash values in the Database
