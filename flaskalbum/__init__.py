@@ -1,9 +1,7 @@
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from aws_secrets import secret
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -11,13 +9,13 @@ bcrypt = Bcrypt(app)
 mysql = MySQL(app)
 
 # Fetch environment variables 
-EMAIL_ID = os.getenv('EMAIL_ID')
-EMAIL_PASS = os.getenv('EMAIL_PASS')
-MYSQL_HOST = os.getenv('MYSQL_HOST')
-MYSQL_USER = os.getenv('MYSQL_USER')
-MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
-FULLSTACK_DB = os.getenv('FULLSTACK_DB')
-FULLSTACK_CRED_TABLE = os.getenv('FULLSTACK_CRED_TABLE')
+EMAIL_ID = secret['EMAIL_ID']
+EMAIL_PASS = secret['EMAIL_PASS']
+MYSQL_HOST = secret['MYSQL_HOST']
+MYSQL_USER = secret['MYSQL_USER']
+MYSQL_ROOT_PASSWORD = secret['MYSQL_ROOT_PASSWORD']
+FULLSTACK_DB = secret['FULLSTACK_DB']
+FULLSTACK_CRED_TABLE = secret['FULLSTACK_CRED_TABLE']
 
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER

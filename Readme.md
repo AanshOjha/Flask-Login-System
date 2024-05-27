@@ -99,6 +99,13 @@ Take care! This has taken my hours of sleep 🥲
    source venv/bin/activate
    ```
 4. Install the modules
+Error: failed to build wheel. 
+how to fix: 
+```
+sudo apt update
+sudo apt install pkg-config
+```
+
 ```sh
 pip install -r requirements.txt
 ```
