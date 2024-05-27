@@ -93,90 +93,31 @@ Take care! This has taken my hours of sleep 🥲
 1. Git clone this repository.
 2. Go to the folder
 3. Create virtual environment
-   ```sh
-   sudo apt install python3.8-venv
+   ```console
+   sudo apt update
+   sudo apt install python3.12-venv
    python3 -m venv venv
    source venv/bin/activate
    ```
 4. Install the modules
-Error: failed to build wheel. 
+5. Error: failed to build wheel. 
 how to fix: 
-```
+```console
 sudo apt update
 sudo apt install pkg-config
 ```
-
+6. Install libraries
 ```sh
 pip install -r requirements.txt
 ```
-5. Configure MySQL
-```sh
-sudo apt install mysql-server -y
-sudo systemctl start mysql
-sudo systemctl enable mysql
-sudo mysql_secure_installation
-```
-Follow the on-screen instructions.
 
-6. Set MySQL password
-```sh
-sudo mysql -u root
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_new_password';
-FLUSH PRIVILEGES;
-EXIT;
-```
-7. Afer this, login to MySQL (Just to check MySQL is configured properly.)
-```sh
-mysql -u root -p
-```
-Don't forget to `exit;` MySQL :)
-
-8. Configure [OS environment variables](#using-os-environment-variables) `EMAIL_ID` and `EMAIL_PASS` which are used to send emails of resetting password.
-
-9. Configure nginx
-```
-sudo apt install nginx
-```
-```
-sudo nano /etc/nginx/sites-available/default
-```
-Enter this code here:
-```
-server {
-    listen 80;
-    server_name your_domain_or_ip;
-
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-Ctrl+X, Y, Enter
-```
-sudo nginx -t
-sudo service nginx restart
-```
-I don't know why but port 5000 don't work <3!
-
-10. Little change in run.py:
-```
-from flaskalbum import app
-
-if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+7. Install and configure AWS 
+```console
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws configure
 ```
 
-### Now run the run.py file...
-### Hopefully your website will be visible in your VM's public ip address.
-
-## For Version 2.0
-Session id stored in Redis
-Hosted in AWS
-OTP based auth 
-
-
-Lots Of Efforts from my side 💖 🥵
+8. Get AWS access IDs and others. Do as prompted.
+9. `python run.py`
