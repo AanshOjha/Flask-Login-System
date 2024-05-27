@@ -1,0 +1,12 @@
+{% extends "login_layout.html" %}
+{% block content %}
+<form method="post" action="/verify_otp">
+    <div class="form-floating mb-3 info">
+      <input type="password" class="form-control" name="user_otp" id="floatingInput" placeholder="OTP" required>
+      <label for="floatingInput">Enter the OTP</label>
+    </div>
+    <div class="submit">
+        <input type="submit" value="Submit">
+    </div>
+</form>
+{% endblock content %}
