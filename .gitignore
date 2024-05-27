@@ -8,3 +8,4 @@ configs/.env
 .gitignore
 .dockerignore
 venv
+config-map.yaml
