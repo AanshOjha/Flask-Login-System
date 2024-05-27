@@ -18,14 +18,14 @@
     <div class="container">
       <div class="row justify-content-center m-4">
         <div class="col-md-5 border-right">
-            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+            <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
                 <img class="profile-img mb-3"  src="../static/img/profile-img.jpg">
                 <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
 
                 <!-- Delete function -->
-                <button  id="askToDelete" onclick="confirmMsg()">Delete your account</button>
+                <button  id="askToDelete" class="btn btn-primary upload-btn" onclick="confirmMsg()">Delete your account</button>
                 <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
-                  <input  type="submit" name="delete_acc" value="If sure then only click me!">
+                  <input  type="submit" class="btn btn-primary upload-btn" name="delete_acc" value="If sure then only click me!">
                 </form>
               
             </div>

@@ -1293,3 +1293,7 @@ h6 {
 .footer .credits a {
   color: var(--color-primary);
 }
+
+.profile-info > * {
+  margin-bottom: 10px;
+}
