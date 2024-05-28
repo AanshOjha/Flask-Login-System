@@ -75,7 +75,7 @@ def logout():
     return redirect('/')
 
 # Route for initiating a password reset request
-@app.route("/reset_password", methods=['GET', 'POST'])
+@app.route("/reset_request", methods=['GET', 'POST'])
 def reset_request():
     if request.method == 'POST':
         email = request.form['email']
@@ -204,6 +204,6 @@ def verify_otp():
             token = user.get_reset_token()
             return redirect(f'reset_password/{token}')
         else:
-            flash('Invalid OTP, try again', 'error')
+            flash('Invalid OTP, try again', 'danger')
             return redirect('/verify_otp')
     return render_template('otp_verify.html', title='Verify OTP')
