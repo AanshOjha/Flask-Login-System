@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, session, flash
 from flaskalbum import app
 from flaskalbum.models import User
-from flaskalbum.utils import send_reset_email
+from flaskalbum.utils import send_reset_email, send_otp_email, otp
 
 # Create an instance of the User class from models.py
 user = User()
@@ -173,3 +173,37 @@ def profile():
     
     else:
         return redirect('/')
+
+@app.route('/send_otp', methods=['GET', 'POST'])
+def send_otp():
+    if request.method == 'POST':
+        email = request.form['email']
+        if email:
+            user_data = user.get_user_by_email(email)
+
+            # If no user found with the provided email, display a warning message
+            if user_data is None:
+                flash('No user found with that email address.', 'warning')
+                return redirect('/send_otp')
+
+            # Send the password reset email
+            user.email = user_data[1]
+            send_otp_email(user)
+
+            flash('An OTP has been sent to your email.', 'success')
+            return redirect('/verify_otp')
+    return render_template('otp_send.html', title='Reset Password')     
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method=='POST':
+        user_otp = int(request.form['user_otp'])
+        if user_otp==otp:
+            flash('Authenticated successfully!', 'success')
+
+            token = user.get_reset_token()
+            return redirect(f'reset_password/{token}')
+        else:
+            flash('Invalid OTP, try again', 'error')
+            return redirect('/verify_otp')
+    return render_template('otp_verify.html', title='Verify OTP')
