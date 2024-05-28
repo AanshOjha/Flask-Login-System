@@ -53,11 +53,11 @@ docker run -p 5000:5000 --name flask-cn --env-file .\.env --rm --network aansh-n
 ```env
 EMAIL_ID=
 EMAIL_PASS=
-MYSQL_HOST=
-MYSQL_USER=
-MYSQL_PASS=
-FULLSTACK_DB=
-FULLSTACK_CRED_TABLE=
+MYSQL_HOST=localhost
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=password
+FULLSTACK_DB=full_stack
+FULLSTACK_CRED_TABLE=creds
 ```
 5. Run configs.envconfig.py file to load env variables in system.
 6. Run mysql-config to configure database and tables.
