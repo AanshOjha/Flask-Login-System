@@ -4,7 +4,7 @@
 - Includes Sign Up, Login, Home Page
 - It's `Reuseable` : You Pass in secrets using a Env File
 
-# For Docker Container to Container
+# For Docker
 * `MYSQL_HOST` value
 1. For local development: `localhost`
 2. For docker container to host: `host.docker.internal`
@@ -27,7 +27,7 @@ docker build . -t flask-app
 docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --network aansh-net flask-app
 ```
 
-* * Run these commands one-by-one, **For docker container to host**
+* Run these commands one-by-one, **For docker container to host**
 ```console
 docker build . -t flask-app
 docker network create aansh-net
