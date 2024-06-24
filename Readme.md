@@ -22,11 +22,11 @@ FULLSTACK_CRED_TABLE=creds
 * Then run this in terminal one-by-one.
 ```console
 docker network create aansh-net
-docker run --name mysql_cn -e MYSQL_ROOT_PASSWORD=password --rm --network aansh-net mysql
+docker run --name mysql_cn -e MYSQL_ROOT_PASSWORD=password --rm --network aansh-net mysql -d
 docker build . -t flask-app
-docker run -p 5000:5000 --name flask_cn --env-file .\.env --rm --network aansh-net flask-app
+docker run -p 80:80 --name flask_cn --env-file .\.env --rm --network aansh-net flask-app
 ```
-* to stop `docker stop flask_cn mysql_cn` then `docker container prune`
+* to stop `docker stop flask_cn mysql_cn` ; `docker container prune`
 
 # Features
 - Recive Password Reset Emails via Zoho
