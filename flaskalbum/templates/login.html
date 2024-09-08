@@ -17,8 +17,18 @@
    <div class="submit">
       <input type="submit" value="Login">
    </div>
+   <div class="guest_login">
+      <input type="submit" onclick="guestCreds()" title="Your credentials will change to that of Guest." value="Login as Guest">
+   </div>
    <div class="signup-link">
       Don't have an account? <a href="register">Sign up now!</a>
    </div>
 </form>
+
+<script>
+   function guestCreds() {
+      document.getElementById("floatingInput").value = "guest";
+      document.getElementById("floatingPassword").value = "guest";
+   }
+</script>
 {% endblock %}

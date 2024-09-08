@@ -138,7 +138,22 @@ def contact():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    if 'username' in session:
+    if session['username'] == 'guest':
+        if 'update_profile' in request.form:
+            message = "Guest user account cannot be updated. Please register or login to update your account."
+            flash(message, 'danger')
+            
+        elif 'delete_acc' in request.form:
+            message = "Guest user account cannot be deleted!"
+            flash(message, 'danger')
+
+        # Handle GET request (display profile page)
+        user_data = user.user_details(session['username'])
+        name = user_data[0]
+        email = user_data[1]
+        return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name)
+    
+    if 'username' in session and session['username'] != 'guest':
         if request.method == 'POST':
             if 'update_profile' in request.form:
                 # Get the updated info from the form

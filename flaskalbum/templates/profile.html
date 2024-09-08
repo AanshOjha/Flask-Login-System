@@ -18,17 +18,20 @@
     <div class="container">
       <div class="row justify-content-center m-4">
         <div class="col-md-5 border-right">
-            <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
-                <img class="profile-img mb-3"  src="../static/img/profile-img.jpg">
-                <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
-
-                <!-- Delete function -->
-                <button  id="askToDelete" class="btn btn-primary upload-btn" onclick="confirmMsg()">Delete your account</button>
-                <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
-                  <input  type="submit" class="btn btn-primary upload-btn" name="delete_acc" value="If sure then only click me!">
-                </form>
-              
-            </div>
+          <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
+              <img class="profile-img mb-3"  src="../static/img/profile-img.jpg">
+              <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
+              <!-- Delete function -->
+              {% if session['username'] == 'guest' %}
+              <button id="askToDelete" class="btn btn-primary upload-btn" title="Guest account can't be deleted!" style="cursor: not-allowed;">Delete your account</button>
+              {% else %}
+              <button id="askToDelete" class="btn btn-primary upload-btn" onclick="confirmMsg()">Delete your account</button>
+              {% endif %}
+              <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
+                <input type="submit" class="btn btn-primary upload-btn" name="delete_acc" value="If sure then only click me!">
+              </form>
+            
+          </div>
         </div>
         <div class="col-md-5">
           <form class="update_profile" method="POST" action="/profile">
@@ -38,17 +41,19 @@
             </div>
             <div class="form-group m-3">
                 <label for="username" class="form-label">Username</label>
-                
                 <input type="text" class="form-control" value="{{ username }}" name="username" id="username">
-                
             </div>
             <div class="form-group m-3">
                 <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control" value="{{ email }}" name="email" id="email">
             </div>
-            <div class="text-center"><input class="btn btn-primary upload-btn" type="submit" name="update_profile" value="Update Changes"></div>
-            
-            
+            <div class="text-center">
+              {% if session['username'] == 'guest' %}
+              <input class="btn btn-primary upload-btn" type="button" name="update_profile" value="Update Changes" title="Guest account can't be updated!" style="cursor: not-allowed;">
+              {% else %}
+              <input class="btn btn-primary upload-btn" type="submit" name="update_profile" value="Update Changes">
+              {% endif %}
+            </div>
           </form>
         </div>
       </div>

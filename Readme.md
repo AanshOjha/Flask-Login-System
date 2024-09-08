@@ -1,8 +1,12 @@
-# About This Project :
+# 
+
+#About This Project :
 > It creates a fully functional Login page
 - 2 Tier Architecture (Frontend - Python {Flask}, Backend - Mysql)
 - Includes Sign Up, Login, Home Page
 - It's `Reuseable` : You Pass in secrets using a Env File
+
+[Useful Notes](#useful-notes)
 
 # For Docker
 * `MYSQL_HOST` value
@@ -173,3 +177,26 @@ OTP based auth
 
 
 Lots Of Efforts from my side 💖 🥵
+
+
+# Useful Notes
+### `return redirect('/profile')`:
+
+used after a form submission or an action that changes the state of the application (like logging in, signing up, or updating a profile).
+
+for `flash()` redirect used.
+
+### `return render_template('profile.html', ...)`
+
+display a page with dynamic content without changing the URL.
+
+* return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name):
+
+Purpose: This directly renders the profile.html template and returns it as the response to the client.
+Behavior: The server processes the request and sends back the HTML content of the profile.html page with the provided context variables (title, username, email, name).
+Use Case: This is typically used when you want to display a page immediately after processing some logic, without changing the URL in the browser's address bar.
+return redirect('/profile'):
+
+Purpose: This sends an HTTP redirect response to the client, instructing the browser to make a new GET request to the /profile URL.
+Behavior: The browser receives the redirect response and then navigates to the /profile URL, effectively causing a new request to be made to the server.
+Use Case: This is used when you want to redirect the user to a different URL, often after processing a form submission or some other action. This changes the URL in the browser's address bar and can help prevent form resubmission issue
