@@ -1,10 +1,4 @@
-# 
 
-#About This Project :
-> It creates a fully functional Login page
-- 2 Tier Architecture (Frontend - Python {Flask}, Backend - Mysql)
-- Includes Sign Up, Login, Home Page
-- It's `Reuseable` : You Pass in secrets using a Env File
 
 [Useful Notes](#useful-notes)
 
