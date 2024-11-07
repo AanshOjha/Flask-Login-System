@@ -2,17 +2,17 @@ version: '3.8'
 services:
   mysql_cn:
     image: mysql:latest
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
+    env_file:
+      - .\.env
     networks:
       - aansh-net
     container_name: mysql_cn
-    volumes:
+    volumes:    # This is to persist credentials data (named volume)
       - aansh:/var/lib/mysql
 
   flask-app:
     build: .\
-    restart: always # Very important otherwise be ready for hairloss
+    restart: always # Very important, otherwise mysql container will not be able to connect to flask-app
     depends_on:
       - mysql_cn
     ports:
