@@ -1,29 +1,34 @@
-from flask import render_template, request, redirect, session, flash
-from flaskalbum import app
+from flask import Blueprint, render_template, flash, redirect, request, session, url_for
+from flaskalbum import db, bcrypt
 from flaskalbum.models import User
 from flaskalbum.utils import send_reset_email
+import os
 
+main = Blueprint('main', __name__)
 # Create an instance of the User class from models.py
 user = User()
 
 # Route for the home page (login page)
-@app.route('/')
+@main.route('/')
 def index(): 
     return render_template('login.html', title='Login')
 
 # Route for user registration
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+@main.route('/create_user', methods=['GET', 'POST'])
+def create_user():
     if request.method == 'POST':
         # Retrieve user registration form data
-        name = request.form['name'] # Input fields have these names
-        email = request.form['email']
-        username = request.form['username']
-        password = request.form['password']
+        data = {
+            'name' : request.form['name'], # Input fields have these names
+            'email' : request.form['email'],
+            'username' : request.form['username'],
+            'password' : request.form['password']
+        }
 
-        # Call register_user method to handle user registration
-        # display message whether register is success or failed
-        message = user.register_user(name, email, username, password)
+        # Call create_user_user method to handle user registration
+        
+        # display message whether create_user is success or failed
+        message = user.create_user(data)
         # danger and success for bootstrap styles
         flash(message, 'danger' if 'error' in message.lower() else 'success')
         if 'success' in message.lower():
@@ -33,7 +38,7 @@ def register():
     return render_template('register.html', title='Create Account')
 
 # Route for user login
-@app.route('/login', methods=['GET','POST'])
+@main.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         # Retrieve user login form data
@@ -45,7 +50,7 @@ def login():
         # Check if the user exists and the password is correct
         if authenticated_user:
             # Store the username in the session and redirect to the home page
-            session['username'] = authenticated_user
+            session['username'] = authenticated_user.username
             return redirect('/home')
         else:
             # Display an error message for unsuccessful login attempts
@@ -56,26 +61,25 @@ def login():
     return render_template('login.html', title='Login')
 
 # Route for the home page after successful login
-@app.route('/home')
+@main.route('/home')
 def home():
     # Check if the user is logged in, if not, redirect to the login page
     if 'username' in session:
         # Get name from username and use in website
-        user_data = user.user_details(session['username'])
-        name = user_data[0]
+        name = user.name
         return render_template('index.html', title='Home', name=name)
     else:
         return redirect('/')
 
 # Route for user logout
-@app.route('/logout')
+@main.route('/logout')
 def logout():
     # Remove the username from the session and redirect to the home page
     session.pop('username', None)
     return redirect('/')
 
 # Route for initiating a password reset request
-@app.route("/reset_password", methods=['GET', 'POST'])
+@main.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if request.method == 'POST':
         email = request.form['email']
@@ -99,7 +103,7 @@ def reset_request():
     return render_template('reset_request.html', title='Forgot Password')
 
 # Route for handling password reset with the provided token
-@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+@main.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     # Verify the reset token
     email_from_token = user.verify_reset_token(token)
@@ -123,11 +127,11 @@ def reset_token(token):
     # Render the password reset form for GET requests
     return render_template('reset_token.html', title='Reset Password')
 
-@app.errorhandler(404)
+@main.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
 
-@app.route('/contact')
+@main.route('/contact')
 def contact():
     # Check if the user is logged in, if not, redirect to the login page
     if 'username' in session:
@@ -136,7 +140,7 @@ def contact():
         return redirect('/')
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@main.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'username' in session:
         if request.method == 'POST':

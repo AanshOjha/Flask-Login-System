@@ -6,7 +6,11 @@
       <div class="row justify-content-center">
         <div class="col-lg-6 text-center">
           <h2>Welcome, <span>{{ name }}</span></h2>
-          <p>This is your Own Photo Album Dummy.</p>
+          <p>This is everyone's Photo Album.</p>
+          <form action="{{ url_for('upload_photo') }}" method="POST" enctype="multipart/form-data">
+            <input type="file" name="photo" class="upload-btn">
+            <button class="upload-btn" type="submit">Upload</button>
+          </form>
         </div>
       </div>
     </div>
@@ -14,29 +18,35 @@
 
   <main id="main" data-aos="fade" data-aos-delay="1500">
 
+    {% if photo_urls %}
     <!-- ======= Gallery Section ======= -->
     <section id="gallery" class="gallery">
       <div class="container-fluid">
         <div class="row gy-4 justify-content-center">
+          {% for photo_url in photo_urls %}
           <div class="col-xl-3 col-lg-4 col-md-6">
             <div class="gallery-item h-100">
-              <img src="../static/img/gallery/gallery-1.jpg" class="img-fluid" alt="">
+              <img src="{{ photo_url }}" class="img-fluid" alt="">
               <div class="gallery-links d-flex flex-column align-items-center justify-content-center">
-                <a href="../static/img/gallery/gallery-1.jpg" title="Gallery 1" class="glightbox preview-link"><i class="bi bi-arrows-angle-expand"></i></a>
+                <a href="{{ photo_url }}" title="Gallery 1" class="glightbox preview-link">
+                  <i class="bi bi-arrows-angle-expand"></i>
+                  <i class="bi bi-trash"></i>
+                </a>
+                
                 <div class="text-center">Gallery 1</div>
               </div>
             </div>
           </div><!-- End Gallery Item -->
-        
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="gallery-item h-100">
-              <img src="../static/img/gallery/gallery-2.jpg" class="img-fluid" alt="">
-              <div class="gallery-links d-flex flex-column align-items-center justify-content-center">
-                <a href="../static/img/gallery/gallery-2.jpg" title="Gallery 2" class="glightbox preview-link"><i class="bi bi-arrows-angle-expand"></i></a>
-                <div class="text-center">Gallery 2</div>
+          {% endfor %}
+
+    {% else %}
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-6 text-center">
+                <h2>No photos uploaded yet.</h2>
               </div>
-            </div>
-          </div><!-- End Gallery Item -->
+          </div>
+    {% endif %}
         </div>
       </div>
     </section><!-- End Gallery Section -->
