@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, flash, redirect, request, session, url_for, current_app
+from flask import render_template, flash, redirect, request, session, url_for, current_app
+from flask_login import current_user, login_required, login_user, logout_user
 from flaskalbum.models import User
 from flaskalbum.utils import send_reset_email
 from flaskalbum import app, db
@@ -35,46 +36,40 @@ def create_user():
     return render_template('register.html', title='Create Account')
 
 # Route for user login
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
     if request.method == 'POST':
-        # Retrieve user login form data
         username = request.form['username']
         password = request.form['password']
-
-        authenticated_user = user.authenticate_user(username, password)
-
-        # Check if the user exists and the password is correct
-        if authenticated_user:
-            # Store the username in the session and redirect to the home page
-            session['username'] = authenticated_user.username
-            return redirect('/home')
-        else:
-            # Display an error message for unsuccessful login attempts
-            flash('Login Unsuccessful. Please check username and password', 'danger')
-            return redirect('/')
         
-    # Render the login page for GET requests
+        # Find the user by username
+        user = User.query.filter_by(username=username).first()
+        
+        # Check if user exists and password is correct
+        if User.authenticate_user(username, password):  # This is the correct method from Flask-Bcrypt
+            login_user(user)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('home'))
+        else:
+            flash('Login unsuccessful. Please check username and password', 'danger')
+    
     return render_template('login.html', title='Login')
 
-# Route for the home page after successful login
 @app.route('/home')
+@login_required
 def home():
-    # Check if the user is logged in, if not, redirect to the login page
-    if 'username' in session:
-        # Get name from username and use in website
-        user = User.query.filter_by(username=session['username']).first()
-        print(user)
-        name = user.name
-        return render_template('index.html', title='Home', name=name)
-    else:
-        return redirect('/')
+    # Use current_user instead of session
+    name = current_user.name
+    return render_template('index.html', title='Home', name=name)
 
 # Route for user logout
 @app.route('/logout')
 def logout():
     # Remove the username from the session and redirect to the home page
-    session.pop('username', None)
+    logout_user()
     return redirect('/')
 
 @app.route("/reset_password", methods=['GET', 'POST'])
@@ -140,43 +135,43 @@ def contact():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
-    if 'username' in session:
-        user = User.query.filter_by(username=session['username']).first()
-        if request.method == 'POST':
-            if 'update_profile' in request.form:
-                # Get the updated info from the form
-                update_username = request.form['username']
-                name = request.form['name']
-                email = request.form['email']
+    user = User.query.filter_by(username=current_user.username).first()
+    if request.method == 'POST':
+        if 'update_profile' in request.form:
+            # Get the updated info from the form
+            update_username = request.form['username']
+            name = request.form['name']
+            email = request.form['email']
 
-                # Update the info in DB and give message
-                
-                message = user.update_info(session['username'], update_username, name, email)
-                flash(message, 'info')
+            # Update the info in DB and give message
+            
+            message = user.update_info(current_user.username, update_username, name, email)
+            flash(message, 'info')
 
-                # Update username present in session_id
-                session['username'] = update_username
+            # Update username present in session_id
+            current_user.username = update_username
 
-                # Get name from username and use in website
-                name = user.name
-                email = user.email
-                return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name)
+            # Get name from username and use in website
+            name = user.name
+            email = user.email
+            return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
+        
+        elif 'delete_acc' in request.form:
+            message = user.delete_account(current_user.username)
+            flash(message, 'danger')
+            session.pop('username', None)
+            return redirect('/')
 
-            elif 'delete_acc' in request.form:
-                message = user.delete_account(session['username'])
-                flash(message, 'danger')
-                session.pop('username', None)
-                return redirect('/')
-
-        # Handle GET request (display profile page)
-        name = user.name
-        email = user.email
-        return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name)
-    
-    else:
-        return redirect('/')
+    # Handle GET request (display profile page)
+    name = user.name
+    email = user.email
+    return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
 
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
+
+# ========================================================================================================
+

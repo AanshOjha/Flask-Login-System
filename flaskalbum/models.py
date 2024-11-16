@@ -8,7 +8,7 @@ from flaskalbum import USER_INFO_TABLE, db, bcrypt
 
 class User(db.Model, UserMixin):
     #User model for handling authentication and user management.
-    __tablename__ = f'{USER_INFO_TABLE}'  # Replace with your table name if different
+    __tablename__ = USER_INFO_TABLE  # Replace with your table name if different
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
@@ -155,3 +155,17 @@ class User(db.Model, UserMixin):
     # When printing the object, return the user's username, email, and name
     def __repr__(self):
         return f"User(username='{self.username}', email='{self.email}', name='{self.name}')"
+    
+# =================================================================================================
+
+class Photo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
+
+    location = db.Column(db.String(100))
+    tags = db.Column(db.String(200))
+    is_favorite = db.Column(db.Boolean, default=False)
