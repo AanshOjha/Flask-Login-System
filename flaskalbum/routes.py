@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, request, session, url_for, current_app
 from flaskalbum.models import User
 from flaskalbum.utils import send_reset_email
-from flaskalbum import app
+from flaskalbum import app, db
 # Create an instance of the User class from models.py
 user = User()
 
@@ -116,14 +116,20 @@ def reset_token(token):
     
     # Handle POST request for password reset
     if request.method == 'POST':
-        # Retrieve and update the user's password
-        password = request.form['password']
-        if password:
-            user.update_password(email_from_token, password)
+        try:
+            # Retrieve and update the user's password
+            password = request.form['password']
+            if password:
+                user.update_password(email_from_token, password)
 
-            # Display a success message and redirect to the login page
-            flash('Your password has been updated! You are now able to log in', 'success')
-            return redirect('/login')
+                # Display a success message and redirect to the login page
+                flash('Your password has been updated! You are now able to log in', 'success')
+                return redirect('/login')
+        
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Password update failed: {str(e)}")
+            flash('An error occurred. Please try again.', 'error')
     
     # Render the password reset form for GET requests
     return render_template('reset_token.html', title='Reset Password')
@@ -144,7 +150,6 @@ def profile():
                 name = request.form['name']
                 email = request.form['email']
 
-
                 # Update the info in DB and give message
                 
                 message = user.update_info(session['username'], update_username, name, email)
@@ -153,8 +158,6 @@ def profile():
                 # Update username present in session_id
                 session['username'] = update_username
 
-                # Display updated info in the form
-                
                 # Get name from username and use in website
                 name = user.name
                 email = user.email
@@ -177,44 +180,3 @@ def profile():
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
-
-# ====================================================================================
-    # if not token:
-    #     flash('Invalid reset link.', 'error')
-    #     return redirect(url_for('app.login'))
-        
-    # try:
-    #     user_email = User.verify_reset_token(token)
-    # except Exception as e:
-    #     current_app.logger.error(f"Token verification failed: {str(e)}")
-    #     flash('The password reset link is invalid or has expired.', 'error')
-    #     return redirect(url_for('app.reset_request'))
-        
-    # if request.method == 'POST':
-    #     password = request.form.get('password')
-    #     confirm_password = request.form.get('confirm_password')
-        
-    #     if not password or not confirm_password:
-    #         flash('Both password fields are required.', 'error')
-    #         return render_template('reset_token.html', title='Reset Password')
-            
-    #     if password != confirm_password:
-    #         flash('Passwords must match.', 'error')
-    #         return render_template('reset_token.html', title='Reset Password')
-            
-    #     # if not is_password_strong(password):
-    #     #     flash('Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters.', 'error')
-    #     #     return render_template('reset_token.html', title='Reset Password')
-            
-    #     try:
-    #         user = User.query.filter_by(email=user_email).first()
-    #         user.update_password(user.email, password)
-            
-    #         flash('Your password has been successfully updated.', 'success')
-    #         return redirect(url_for('app.login'))
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         current_app.logger.error(f"Password update failed: {str(e)}")
-    #         flash('An error occurred. Please try again.', 'error')
-            
-    # return render_template('reset_token.html', title='Reset Password')
