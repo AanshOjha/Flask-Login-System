@@ -16,22 +16,27 @@ EMAIL_PASS = os.getenv('EMAIL_PASS')
 MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
-FULLSTACK_DB = os.getenv('FULLSTACK_DB')
-FULLSTACK_CRED_TABLE = os.getenv('FULLSTACK_CRED_TABLE')
+PHOTO_ALBUM_DB = os.getenv('PHOTO_ALBUM_DB')
+USER_INFO_TABLE = os.getenv('USER_INFO_TABLE')
 
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER
 app.config['MYSQL_PASSWORD'] = MYSQL_ROOT_PASSWORD
+app.config['UPLOAD_FOLDER'] = os.path.join('/uploads')
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 # Interact with the database
 with app.app_context():
     mycursor = mysql.connection.cursor() 
-    mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {FULLSTACK_DB}")
-    mycursor.execute(f"USE {FULLSTACK_DB}")
-    mycursor.execute(f"CREATE TABLE IF NOT EXISTS {FULLSTACK_CRED_TABLE} (name VARCHAR(120), email VARCHAR(120), username VARCHAR(120), password VARCHAR(120))")
+    mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {PHOTO_ALBUM_DB}")
+    mycursor.execute(f"USE {PHOTO_ALBUM_DB}")
+    mycursor.execute(f"CREATE TABLE IF NOT EXISTS {USER_INFO_TABLE} (name VARCHAR(120), email VARCHAR(120), username VARCHAR(120), password VARCHAR(120))")
     mycursor.close()
 
 # MySQL Configuration 
-app.config['MYSQL_DB'] = FULLSTACK_DB
+app.config['MYSQL_DB'] = PHOTO_ALBUM_DB
 
 from flaskalbum import routes

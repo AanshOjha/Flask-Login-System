@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, session, flash
+import os
+from flask import render_template, request, redirect, send_from_directory, session, flash, url_for
 from flaskalbum import app
 from flaskalbum.models import User
 from flaskalbum.utils import send_reset_email
@@ -63,9 +64,28 @@ def home():
         # Get name from username and use in website
         user_data = user.user_details(session['username'])
         name = user_data[0]
-        return render_template('index.html', title='Home', name=name)
+        photo_files = os.listdir(app.config['UPLOAD_FOLDER'])
+        photo_urls = [url_for('serve_photo', filename=photo_file) for photo_file in photo_files]
+        print(photo_urls)
+        return render_template('index.html', title='Home', name=name, photo_urls=photo_urls)
     else:
         return redirect('/')
+
+@app.route('/uploads/<filename>')
+def serve_photo(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/upload_photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return redirect(url_for('home'))
+
+    photo = request.files['photo']
+    if photo.filename == '':
+        return redirect(url_for('home'))
+
+    photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
+    return redirect(url_for('home'))
 
 # Route for user logout
 @app.route('/logout')

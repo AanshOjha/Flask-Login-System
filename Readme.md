@@ -16,8 +16,8 @@ EMAIL_PASS=
 MYSQL_HOST=mysql_cn
 MYSQL_USER=root
 MYSQL_ROOT_PASSWORD=password
-FULLSTACK_DB=full_stack
-FULLSTACK_CRED_TABLE=creds
+PHOTO_ALBUM_DB=full_stack
+USER_INFO_TABLE=creds
 ```
 * Then run this in terminal one-by-one, **For Docker container to container**
 ```console
@@ -56,8 +56,8 @@ EMAIL_PASS=
 MYSQL_HOST=localhost
 MYSQL_USER=root
 MYSQL_ROOT_PASSWORD=password
-FULLSTACK_DB=full_stack
-FULLSTACK_CRED_TABLE=creds
+PHOTO_ALBUM_DB=full_stack
+USER_INFO_TABLE=creds
 ```
 5. Run configs.envconfig.py file to load env variables in system.
 6. Run mysql-config to configure database and tables.
@@ -82,7 +82,7 @@ To use OS Environment Variables,
 4. Now run envconfig.py to declare the OS Environment Variables.
 
 > Advantage of doing this- If you wish to change the name of DB, table, email, etc anything, only change the name in ".env" file!
->> Note: If you change FULLSTACK_DB or FULLSTACK_CRED_TABLE, you have to run mysql-config.py again.
+>> Note: If you change PHOTO_ALBUM_DB or USER_INFO_TABLE, you have to run mysql-config.py again.
 
 ### ⚠️ **Warning**
 Don't know why but Flask-MySQLdb module does not installs in VM without virtual environment. 
