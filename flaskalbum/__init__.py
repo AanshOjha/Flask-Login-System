@@ -53,10 +53,6 @@ from flaskalbum.models import User
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# create_user blueprints
-from flaskalbum.routes import main
-app.register_blueprint(main)
-
 # Create database tables
 with app.app_context():
     mycursor = mysql.connection.cursor() 
@@ -64,3 +60,6 @@ with app.app_context():
     mycursor.execute(f"USE {PHOTO_ALBUM_DB}")
     mycursor.close()
     db.create_all()
+
+# create_user blueprints
+from flaskalbum import routes

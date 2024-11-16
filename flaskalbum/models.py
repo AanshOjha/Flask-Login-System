@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask_login import UserMixin
-from flask import current_app
+from flaskalbum import app
 import jwt
 
 # Replace 'db' with your SQLAlchemy instance import
@@ -84,13 +84,14 @@ class User(db.Model, UserMixin):
 
     def get_reset_token(self, expires_sec=600):
         #Generate a timed JWT token for password reset.
+        expiration_time = (datetime.now() + timedelta(seconds=expires_sec)).isoformat()
         payload = {
             'email': self.email,
-            'exp': datetime.utcnow() + timedelta(seconds=expires_sec)
+            'expiration': expiration_time
         }
         return jwt.encode(
             payload,
-            current_app.config['SECRET_KEY'],
+            app.config['SECRET_KEY'],
             algorithm='HS256'
         )
 
@@ -100,10 +101,18 @@ class User(db.Model, UserMixin):
         try:
             payload = jwt.decode(
                 token,
-                current_app.config['SECRET_KEY'],
+                app.config['SECRET_KEY'],
                 algorithms=['HS256']
             )
-            return payload['email']
+            email = payload['email']
+            print(email)
+            expiration = datetime.strptime(payload['expiration'], '%Y-%m-%dT%H:%M:%S.%f')
+            print(expiration)
+            print(datetime.now())
+            if expiration < datetime.now():
+                return None
+            
+            return email
         except jwt.ExpiredSignatureError:
             return None
         except jwt.InvalidTokenError:
@@ -119,27 +128,30 @@ class User(db.Model, UserMixin):
             return True
         return False
 
-    def update_info(self, update_username, name, email):
+    def update_info(self, username, update_username, name, email):
         #Update user information.
         try:
-            self.username = update_username
-            self.name = name
-            self.email = email
+            user = User.query.filter_by(username=username).first()
+            user.username = update_username
+            user.name = name
+            user.email = email
             db.session.commit()
             return 'Information updated successfully.'
         except Exception as e:
             db.session.rollback()
             return 'Failed to update information.'
 
-    def delete_account(self):
+    def delete_account(self, username):
         #Delete user account.
         try:
-            db.session.delete(self)
+            user_to_delete = User.query.filter_by(username=username).first()
+            db.session.delete(user_to_delete)
             db.session.commit()
             return 'Account deleted successfully.'
         except Exception as e:
             db.session.rollback()
             return 'Failed to delete account.'
 
+    # When printing the object, return the user's username, email, and name
     def __repr__(self):
-        return f"User(username='{self.username}', email='{self.email}')"
+        return f"User(username='{self.username}', email='{self.email}', name='{self.name}')"

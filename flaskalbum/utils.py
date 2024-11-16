@@ -6,6 +6,7 @@ from flaskalbum import EMAIL_ID, EMAIL_PASS, app
 def send_reset_email(user):
     # Generate a password reset token and construct the reset email content
     token = user.get_reset_token()
+    print(token)
     
     # Email configuration and content
     email_user = EMAIL_ID

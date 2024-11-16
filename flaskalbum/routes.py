@@ -1,20 +1,17 @@
-from flask import Blueprint, render_template, flash, redirect, request, session, url_for
-from flaskalbum import db, bcrypt
+from flask import Blueprint, render_template, flash, redirect, request, session, url_for, current_app
 from flaskalbum.models import User
 from flaskalbum.utils import send_reset_email
-import os
-
-main = Blueprint('main', __name__)
+from flaskalbum import app
 # Create an instance of the User class from models.py
 user = User()
 
 # Route for the home page (login page)
-@main.route('/')
+@app.route('/')
 def index(): 
     return render_template('login.html', title='Login')
 
 # Route for user registration
-@main.route('/create_user', methods=['GET', 'POST'])
+@app.route('/create_user', methods=['GET', 'POST'])
 def create_user():
     if request.method == 'POST':
         # Retrieve user registration form data
@@ -38,7 +35,7 @@ def create_user():
     return render_template('register.html', title='Create Account')
 
 # Route for user login
-@main.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         # Retrieve user login form data
@@ -61,49 +58,53 @@ def login():
     return render_template('login.html', title='Login')
 
 # Route for the home page after successful login
-@main.route('/home')
+@app.route('/home')
 def home():
     # Check if the user is logged in, if not, redirect to the login page
     if 'username' in session:
         # Get name from username and use in website
+        user = User.query.filter_by(username=session['username']).first()
+        print(user)
         name = user.name
         return render_template('index.html', title='Home', name=name)
     else:
         return redirect('/')
 
 # Route for user logout
-@main.route('/logout')
+@app.route('/logout')
 def logout():
     # Remove the username from the session and redirect to the home page
     session.pop('username', None)
     return redirect('/')
 
-# Route for initiating a password reset request
-@main.route("/reset_password", methods=['GET', 'POST'])
+@app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if request.method == 'POST':
-        email = request.form['email']
-        if email:
-            user_data = user.get_user_by_email(email)
-
-            # If no user found with the provided email, display a warning message
-            if user_data is None:
-                flash('No user found with that email address.', 'warning')
-                return redirect('/reset_password')
-
-            # Send the password reset email
-            user.email = user_data[1]
-            send_reset_email(user)
-
-            # Display a success message and redirect to the login page
-            flash('An email has been sent with instructions to reset your password.', 'info')
-            return redirect('/login')
+        email = request.form.get('email')
+        if not email:
+            flash('Email is required.', 'error')
+            return redirect(url_for('reset_request'))
+            
+        user = User.query.filter_by(email=email).first()
+        print(user)
         
-    # Render the password reset request form for GET requests
-    return render_template('reset_request.html', title='Forgot Password')
+        # Always show the same message whether user exists or not
+        # This prevents email enumeration attacks
+        flash('If an account exists with that email, you will receive password reset instructions.', 'info')
+        
+        if user:
+            try:
+                print(user.email)
+                send_reset_email(user)
+            except Exception as e:
+                # Log the error but don't expose it to the user
+                current_app.logger.error(f"Failed to send reset email: {str(e)}")
+                
+        return redirect(url_for('login'))
+        
+    return render_template('reset_request.html', title='Reset Password')
 
-# Route for handling password reset with the provided token
-@main.route("/reset_password/<token>", methods=['GET', 'POST'])
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     # Verify the reset token
     email_from_token = user.verify_reset_token(token)
@@ -127,22 +128,15 @@ def reset_token(token):
     # Render the password reset form for GET requests
     return render_template('reset_token.html', title='Reset Password')
 
-@main.errorhandler(404)
-def not_found_error(error):
-    return render_template('errors/404.html'), 404
-
-@main.route('/contact')
+@app.route('/contact')
 def contact():
-    # Check if the user is logged in, if not, redirect to the login page
-    if 'username' in session:
-        return render_template('contact.html', title='Contact')
-    else:
-        return redirect('/')
+    return render_template('contact.html', title='Contact')
 
 
-@main.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'username' in session:
+        user = User.query.filter_by(username=session['username']).first()
         if request.method == 'POST':
             if 'update_profile' in request.form:
                 # Get the updated info from the form
@@ -150,7 +144,9 @@ def profile():
                 name = request.form['name']
                 email = request.form['email']
 
+
                 # Update the info in DB and give message
+                
                 message = user.update_info(session['username'], update_username, name, email)
                 flash(message, 'info')
 
@@ -158,22 +154,67 @@ def profile():
                 session['username'] = update_username
 
                 # Display updated info in the form
-                user_data = user.user_details(session['username'])
-                name = user_data[0]
-                email = user_data[1]
+                
+                # Get name from username and use in website
+                name = user.name
+                email = user.email
                 return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name)
 
             elif 'delete_acc' in request.form:
-                message = user.delete_acc(session['username'])
+                message = user.delete_account(session['username'])
                 flash(message, 'danger')
                 session.pop('username', None)
                 return redirect('/')
 
         # Handle GET request (display profile page)
-        user_data = user.user_details(session['username'])
-        name = user_data[0]
-        email = user_data[1]
+        name = user.name
+        email = user.email
         return render_template('profile.html', title='Profile', username=session['username'], email=email, name=name)
     
     else:
         return redirect('/')
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
+
+# ====================================================================================
+    # if not token:
+    #     flash('Invalid reset link.', 'error')
+    #     return redirect(url_for('app.login'))
+        
+    # try:
+    #     user_email = User.verify_reset_token(token)
+    # except Exception as e:
+    #     current_app.logger.error(f"Token verification failed: {str(e)}")
+    #     flash('The password reset link is invalid or has expired.', 'error')
+    #     return redirect(url_for('app.reset_request'))
+        
+    # if request.method == 'POST':
+    #     password = request.form.get('password')
+    #     confirm_password = request.form.get('confirm_password')
+        
+    #     if not password or not confirm_password:
+    #         flash('Both password fields are required.', 'error')
+    #         return render_template('reset_token.html', title='Reset Password')
+            
+    #     if password != confirm_password:
+    #         flash('Passwords must match.', 'error')
+    #         return render_template('reset_token.html', title='Reset Password')
+            
+    #     # if not is_password_strong(password):
+    #     #     flash('Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters.', 'error')
+    #     #     return render_template('reset_token.html', title='Reset Password')
+            
+    #     try:
+    #         user = User.query.filter_by(email=user_email).first()
+    #         user.update_password(user.email, password)
+            
+    #         flash('Your password has been successfully updated.', 'success')
+    #         return redirect(url_for('app.login'))
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         current_app.logger.error(f"Password update failed: {str(e)}")
+    #         flash('An error occurred. Please try again.', 'error')
+            
+    # return render_template('reset_token.html', title='Reset Password')
