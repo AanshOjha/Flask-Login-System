@@ -9,4 +9,4 @@ configs/.env
 .dockerignore
 venv
 config-map.yaml
-/uploads
+/flaskalbum/uploads
