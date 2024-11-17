@@ -4,7 +4,7 @@ from flaskalbum import app
 import jwt
 
 # Replace 'db' with your SQLAlchemy instance import
-from flaskalbum import USER_INFO_TABLE, db, bcrypt
+from flaskalbum import USER_INFO_TABLE, PHOTO_INFO_TABLE, db, bcrypt
 
 class User(db.Model, UserMixin):
     #User model for handling authentication and user management.
@@ -169,3 +169,26 @@ class Photo(db.Model):
     location = db.Column(db.String(100))
     tags = db.Column(db.String(200))
     is_favorite = db.Column(db.Boolean, default=False)
+
+# ===========================================================================
+
+# Database Model (using SQLAlchemy)
+class Photo(db.Model):
+    __tablename__ = PHOTO_INFO_TABLE
+
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    upload_date = db.Column(db.DateTime, default=datetime.now().astimezone())
+    user_id = db.Column(db.Integer, db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
+    
+    # Add these fields to make it more impressive
+    location = db.Column(db.String(100))
+    tags = db.Column(db.String(200))
+    is_favorite = db.Column(db.Boolean, default=False)
+
+    user = db.relationship('User', backref=db.backref(PHOTO_INFO_TABLE, lazy=True))
+
+    def __repr__(self):
+        return f'<Photo {self.filename}>'

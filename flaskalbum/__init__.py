@@ -19,6 +19,7 @@ MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
 PHOTO_ALBUM_DB = os.getenv('PHOTO_ALBUM_DB')
 USER_INFO_TABLE = os.getenv('USER_INFO_TABLE')
+PHOTO_INFO_TABLE = os.getenv('PHOTO_INFO_TABLE')
 EMAIL_ID = os.getenv('EMAIL_ID')
 EMAIL_PASS = os.getenv('EMAIL_PASS')
 
@@ -26,6 +27,10 @@ EMAIL_PASS = os.getenv('EMAIL_PASS')
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER
 app.config['MYSQL_PASSWORD'] = MYSQL_ROOT_PASSWORD
+app.config['UPLOAD_FOLDER'] = '/uploads'    # mistakenly wrote os.path.join('/upload'), should be '/uploads'
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Configure SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = (

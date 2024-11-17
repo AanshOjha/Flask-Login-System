@@ -1,8 +1,11 @@
-from flask import render_template, flash, redirect, request, session, url_for, current_app
+from datetime import datetime
+import os
+from flask import render_template, flash, redirect, request, send_from_directory, session, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
-from flaskalbum.models import User
+from flaskalbum.models import Photo, User
 from flaskalbum.utils import send_reset_email
 from flaskalbum import app, db
+from werkzeug.utils import secure_filename
 # Create an instance of the User class from models.py
 user = User()
 
@@ -61,9 +64,66 @@ def login():
 @app.route('/home')
 @login_required
 def home():
-    # Use current_user instead of session
     name = current_user.name
-    return render_template('index.html', title='Home', name=name)
+    
+    # Get all photos for current user with their details
+    photo_details = Photo.query.filter_by(user_id=current_user.id).all()
+    
+    # Create a list of photo objects with both details and URLs
+    photos = []
+    for photo in photo_details:
+        photo_data = {
+            'url': url_for('serve_photo', filename=photo.filename),
+            'title': photo.title,
+            'description': photo.description,
+            'location': photo.location,
+            'tags': photo.tags,
+            'upload_date': photo.upload_date,
+            'is_favorite': photo.is_favorite
+        }
+        photos.append(photo_data)
+    
+    return render_template('index.html', title='Home', name=name, photos=photos)
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html', title='Contact')
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user = User.query.filter_by(username=current_user.username).first()
+    if request.method == 'POST':
+        if 'update_profile' in request.form:
+            # Get the updated info from the form
+            update_username = request.form['username']
+            name = request.form['name']
+            email = request.form['email']
+
+            # Update the info in DB and give message
+            
+            message = user.update_info(current_user.username, update_username, name, email)
+            flash(message, 'info')
+
+            # Update username present in session_id
+            current_user.username = update_username
+
+            # Get name from username and use in website
+            name = user.name
+            email = user.email
+            return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
+        
+        elif 'delete_acc' in request.form:
+            message = user.delete_account(current_user.username)
+            flash(message, 'danger')
+            session.pop('username', None)
+            return redirect('/')
+
+    # Handle GET request (display profile page)
+    name = user.name
+    email = user.email
+    return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
 
 # Route for user logout
 @app.route('/logout')
@@ -129,49 +189,82 @@ def reset_token(token):
     # Render the password reset form for GET requests
     return render_template('reset_token.html', title='Reset Password')
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html', title='Contact')
-
-
-@app.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    user = User.query.filter_by(username=current_user.username).first()
-    if request.method == 'POST':
-        if 'update_profile' in request.form:
-            # Get the updated info from the form
-            update_username = request.form['username']
-            name = request.form['name']
-            email = request.form['email']
-
-            # Update the info in DB and give message
-            
-            message = user.update_info(current_user.username, update_username, name, email)
-            flash(message, 'info')
-
-            # Update username present in session_id
-            current_user.username = update_username
-
-            # Get name from username and use in website
-            name = user.name
-            email = user.email
-            return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
-        
-        elif 'delete_acc' in request.form:
-            message = user.delete_account(current_user.username)
-            flash(message, 'danger')
-            session.pop('username', None)
-            return redirect('/')
-
-    # Handle GET request (display profile page)
-    name = user.name
-    email = user.email
-    return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
-
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
 
 # ========================================================================================================
+@app.route('/uploads/<filename>')
+def serve_photo(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/upload_photo', methods=['POST'])
+@login_required
+def upload_photo():
+    if 'photo' not in request.files:
+        return redirect(url_for('home'))
+
+    photo = request.files['photo']
+    if photo.filename == '':
+        return redirect(url_for('home'))
+
+    # Generate unique filename
+    filename = secure_filename(f"{current_user.id}_{photo.filename}")
+    
+    # Save photo details to database
+    new_photo = Photo(
+        filename=filename,
+        title=request.form['title'],
+        description=request.form['description'],
+        location=request.form['location'],
+        tags=request.form['tags'],
+        user_id=current_user.id
+    )
+    
+    try:
+        db.session.add(new_photo)
+        db.session.commit()
+        # Save the actual file
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], new_photo.filename))
+        flash('Photo uploaded successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error uploading photo.', 'error')
+        print(e)  # For debugging
+
+    return redirect(url_for('home'))
+
+# @app.route('/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
+# @login_required
+# def edit_photo(photo_id):
+#     photo = Photo.query.get_or_404(photo_id)
+#     # Check if photo belongs to current user
+#     if photo.user_id != current_user.id:
+#         flash('Unauthorized access')
+#         return redirect(url_for('home'))
+    
+#     if request.method == 'POST':
+#         photo.title = request.form.get('title')
+#         photo.description = request.form.get('description')
+#         photo.location = request.form.get('location')
+#         photo.tags = request.form.get('tags')
+#         photo.is_favorite = 'is_favorite' in request.form
+#         db.session.commit()
+#         return redirect(url_for('home'))
+    
+#     return render_template('edit_photo.html', photo=photo)
+
+# @app.route('/photo/<int:photo_id>/delete', methods=['POST'])
+# @login_required
+# def delete_photo(photo_id):
+#     photo = Photo.query.get_or_404(photo_id)
+#     if photo.user_id != current_user.id:
+#         flash('Unauthorized access')
+#         return redirect(url_for('index'))
+    
+#     # Delete file from uploads folder
+#     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
+#     # Delete database record
+#     db.session.delete(photo)
+#     db.session.commit()
+#     return redirect(url_for('index'))
