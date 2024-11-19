@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
 
     # Relationship with photos (one-to-many) - Keep if you need it
-    # photos = db.relationship('Photo', backref='user', lazy=True, cascade='all, delete-orphan')
+    photos = db.relationship('Photo', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def get_id(self):
         return str(self.id)
@@ -139,8 +139,9 @@ class User(db.Model, UserMixin):
             return 'Information updated successfully.'
         except Exception as e:
             db.session.rollback()
+            print(e)
             return 'Failed to update information.'
-
+            
     def delete_account(self, username):
         #Delete user account.
         try:
@@ -150,25 +151,12 @@ class User(db.Model, UserMixin):
             return 'Account deleted successfully.'
         except Exception as e:
             db.session.rollback()
+            print(e)
             return 'Failed to delete account.'
-
+        
     # When printing the object, return the user's username, email, and name
     def __repr__(self):
         return f"User(username='{self.username}', email='{self.email}', name='{self.name}')"
-    
-# =================================================================================================
-
-class Photo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(255), nullable=False)
-    title = db.Column(db.String(100))
-    description = db.Column(db.Text)
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
-
-    location = db.Column(db.String(100))
-    tags = db.Column(db.String(200))
-    is_favorite = db.Column(db.Boolean, default=False)
 
 # ===========================================================================
 
@@ -187,8 +175,6 @@ class Photo(db.Model):
     location = db.Column(db.String(100))
     tags = db.Column(db.String(200))
     is_favorite = db.Column(db.Boolean, default=False)
-
-    user = db.relationship('User', backref=db.backref(PHOTO_INFO_TABLE, lazy=True))
 
     def __repr__(self):
         return f'<Photo {self.filename}>'

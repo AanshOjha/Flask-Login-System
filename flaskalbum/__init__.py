@@ -3,6 +3,8 @@ from flask_mysqldb import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 import os
 from dotenv import load_dotenv
 
@@ -46,13 +48,14 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 mysql = MySQL(app)
+admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
 
 # Configure login manager
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 # Import models
-from flaskalbum.models import User
+from flaskalbum.models import Photo, User
 
 # User loader callback
 @login_manager.user_loader
@@ -71,6 +74,9 @@ with app.app_context():
     mycursor.execute(f"USE {PHOTO_ALBUM_DB}")
     mycursor.close()
     db.create_all()
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Photo, db.session))
 
 # Import routes
 from flaskalbum import routes
