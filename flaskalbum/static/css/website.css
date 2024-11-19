@@ -170,8 +170,11 @@ h6 {
 }
 
 .upload-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   transition: transform 0.3s ease-in-out;
+  box-shadow: 0 0 30px var(--color-primary), 0 0 30px var(--color-primary);
+  transition: 0.25s ease-in;
+  background: var(--color-primary);
 }
 
 .upload-btn:active {
@@ -1224,7 +1227,7 @@ h6 {
   background: #000;
   background-size: cover;
   position: relative;
-  padding: 140px 0 60px 0;
+  padding: 80px 0 40px 0;
 }
 
 .hero h2 {
@@ -1331,4 +1334,33 @@ h6 {
 /* Optional: Style the lightbox content container */
 .glightbox-desc {
   background: rgba(0, 0, 0, 0.7);
+}
+
+.input-fields {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 2px solid var(--color-primary); /* Border color */
+  border-radius: 4px;
+  background-color: var(--color-secondary); /* Black background for input fields */
+  color: var(--color-primary); /* Text color */
+  border-radius: var(--radius-border);
+}
+
+.input-fields::placeholder {
+  color: var(--color-primary); /* Placeholder text color */
+  opacity: 0.7; /* Slightly transparent placeholder */
+}
+
+.input-fields:focus {
+  outline: none; /* Remove default outline */
+  border-color: var(--color-primary); /* Keep border color on focus */
+  background-color: var(--color-secondary);
+  color: var(--color-default); /* Change border color on focus */
+  box-shadow: 0 0 30px var(--color-primary), 0 0 30px var(--color-primary);
+  transition: 0.25s ease-in;
+}
+
+.photo_details {
+  display: none;
 }
