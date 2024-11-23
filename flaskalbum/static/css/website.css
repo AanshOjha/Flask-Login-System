@@ -1364,3 +1364,13 @@ h6 {
 .photo_details {
   display: none;
 }
+
+.delete-btn {
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+  cursor: pointer; /* Add pointer cursor */
+  outline: none; /* Remove outline */
+  color: var(--color-primary);
+}

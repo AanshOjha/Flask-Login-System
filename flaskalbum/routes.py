@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import secrets
 from flask import render_template, flash, redirect, request, send_from_directory, session, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
 from flaskalbum.models import Photo, User
@@ -12,7 +13,7 @@ user = User()
 # Route for the home page (login page)
 @app.route('/')
 def index(): 
-    return render_template('login.html', title='Login')
+    return redirect(url_for('login', title='Login'))
 
 # Route for user registration
 @app.route('/create_user', methods=['GET', 'POST'])
@@ -73,6 +74,7 @@ def home():
     photos = []
     for photo in photo_details:
         photo_data = {
+            'id': photo.id,
             'url': url_for('serve_photo', filename=photo.filename),
             'title': photo.title,
             'description': photo.description,
@@ -82,8 +84,13 @@ def home():
             'is_favorite': photo.is_favorite
         }
         photos.append(photo_data)
+
+    if request.method == 'POST':
+        if 'edit_details' in request.form:
+            print('home fine!')
+            return url_for('edit_photo', photo_id=photo.id)
     
-    return render_template('index.html', title='Home', name=name, photos=photos)
+    return render_template('home.html', title='Home', name=name, photos=photos)
 
 @app.route('/contact')
 def contact():
@@ -209,7 +216,7 @@ def upload_photo():
         return redirect(url_for('home'))
 
     # Generate unique filename
-    filename = secure_filename(f"{current_user.id}_{photo.filename}")
+    filename = secure_filename(f"{current_user.id}_{secrets.token_hex(10)}_{photo.filename}")
     
     # Save photo details to database
     new_photo = Photo(
@@ -234,37 +241,18 @@ def upload_photo():
 
     return redirect(url_for('home'))
 
-# @app.route('/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
-# @login_required
-# def edit_photo(photo_id):
-#     photo = Photo.query.get_or_404(photo_id)
-#     # Check if photo belongs to current user
-#     if photo.user_id != current_user.id:
-#         flash('Unauthorized access')
-#         return redirect(url_for('home'))
+@app.route('/photo/<int:photo_id>/delete', methods=['POST'])
+@login_required
+def delete_photo(photo_id):
+    photo = Photo.query.get_or_404(photo_id)
+    if photo.user_id != current_user.id:
+        flash('Unauthorized access')
+        return redirect(url_for('home'))
     
-#     if request.method == 'POST':
-#         photo.title = request.form.get('title')
-#         photo.description = request.form.get('description')
-#         photo.location = request.form.get('location')
-#         photo.tags = request.form.get('tags')
-#         photo.is_favorite = 'is_favorite' in request.form
-#         db.session.commit()
-#         return redirect(url_for('home'))
-    
-#     return render_template('edit_photo.html', photo=photo)
-
-# @app.route('/photo/<int:photo_id>/delete', methods=['POST'])
-# @login_required
-# def delete_photo(photo_id):
-#     photo = Photo.query.get_or_404(photo_id)
-#     if photo.user_id != current_user.id:
-#         flash('Unauthorized access')
-#         return redirect(url_for('index'))
-    
-#     # Delete file from uploads folder
-#     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
-#     # Delete database record
-#     db.session.delete(photo)
-#     db.session.commit()
-#     return redirect(url_for('index'))
+    # Delete file from uploads folder
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
+    # Delete database record
+    db.session.delete(photo)
+    db.session.commit()
+    flash('Photo deleted successfully!', 'success')
+    return redirect(url_for('home'))

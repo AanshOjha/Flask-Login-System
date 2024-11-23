@@ -172,3 +172,8 @@ form .pass-link a:hover,
 form .signup-link a:hover{
   text-decoration: underline;
 }
+
+.input_field:focus {
+  box-shadow: 0 0 30px #59046e, 0 0 30px #23d5ab;
+  transition: 0.25s ease-in;
+}
