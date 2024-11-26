@@ -12,7 +12,8 @@ USER_INFO_TABLE=
 PHOTO_INFO_TABLE 
 ```
 3. Pass on any names you like, and in `EMAIL_ID` and `EMAIL_PASS`, add those credentials which can send password reset emails (Need to have SMTP protocol)
-4. Run this on terminal: `docker run -p 80:80 --env-file .env aanshojha/photo-album`
+4. Run this on terminal: `docker run -p 80:80 --env-file .env --name photo-album aanshojha/photo-album`
+5. To stop, `docker stop photo-album`
 
 
 # About This Project :

@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-6 text-center">
         <h2>Welcome, <span>{{ name }}</span></h2>
-        <p>This is your own Photo Album.</p>
+        <p>This is your own Photo Album. Upload now!</p>
         <form action="{{ url_for('upload_photo') }}" method="POST" enctype="multipart/form-data" class="mb-8">
             <div class="space-y-4">
                 <input type="file" name="photo" accept="image/*" onclick="show_details()" class="upload-btn mb-4">

@@ -1,6 +1,7 @@
+import datetime
 import os
 import secrets
-from flask import render_template, flash, redirect, request, send_from_directory, session, url_for, current_app
+from flask import render_template, flash, redirect, request, send_from_directory, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
 from flaskalbum.models import Photo, User
 from flaskalbum.utils import send_reset_email
@@ -122,7 +123,7 @@ def profile():
         elif 'delete_acc' in request.form:
             message = user.delete_account(current_user.username)
             flash(message, 'danger')
-            session.pop('username', None)
+            logout_user()
             return redirect('/')
 
     # Handle GET request (display profile page)
