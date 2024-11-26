@@ -23,10 +23,12 @@
                 <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
 
                 <!-- Delete function -->
-                <button  id="askToDelete" class="btn btn-primary upload-btn" onclick="confirmMsg()">Delete your account</button>
-                <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
+                <form method="POST" action="/profile">
+                  <input type="submit" name="delete_acc" class="btn btn-primary upload-btn" onclick="return confirm('This will delete all your information. Are you sure?')" value="Delete your account">
+                </form> 
+                <!-- <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
                   <input  type="submit" class="btn btn-primary upload-btn" name="delete_acc" value="If sure then only click me!">
-                </form>
+                </form> -->
               
             </div>
         </div>
@@ -57,14 +59,4 @@
   </section><!-- End profile Section -->
 
 </main><!-- End #main -->
-
-<!-- Only for Delete Account Function -->
-<script>
-  function confirmMsg() {
-    if (document.getElementById("confirmDelete").style.display === "none") 
-      document.getElementById("confirmDelete").style.display = "block";
-    else if (document.getElementById("confirmDelete").style.display === "block")
-    document.getElementById("confirmDelete").style.display = "none";
-  }
-</script>
 {% endblock %}
