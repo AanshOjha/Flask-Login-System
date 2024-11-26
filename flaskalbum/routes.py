@@ -72,17 +72,18 @@ def home():
     # Create a list of photo objects with both details and URLs
     photos = []
     for photo in photo_details:
-        photo_data = {
-            'id': photo.id,
-            'url': url_for('serve_photo', filename=photo.filename),
-            'title': photo.title,
-            'description': photo.description,
-            'location': photo.location,
-            'tags': photo.tags,
-            'upload_date': photo.upload_date,
-            'is_favorite': photo.is_favorite
-        }
-        photos.append(photo_data)
+        if photo.filename:
+            photo_data = {
+                'id': photo.id,
+                'url': url_for('serve_photo', filename=photo.filename),
+                'title': photo.title,
+                'description': photo.description,
+                'location': photo.location,
+                'tags': photo.tags,
+                'upload_date': photo.upload_date,
+                'is_favorite': photo.is_favorite
+            }
+            photos.append(photo_data)
 
     if request.method == 'POST':
         if 'edit_details' in request.form:
@@ -95,12 +96,42 @@ def home():
 def contact():
     return render_template('contact.html', title='Contact')
 
+@app.context_processor
+def profile_display():
+    if current_user.is_authenticated:
+        profile_photo = url_for('serve_photo', filename=current_user.profile_photo)
+    return dict(profile_photo=profile_photo)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     user = User.query.filter_by(username=current_user.username).first()
+    print(os.getcwd())
     if request.method == 'POST':
+        if 'profile_photo' in request.files:
+            if 'profile_photo' not in request.files:
+                return redirect(url_for('profile'))
+
+            profile_photo = request.files['profile_photo']
+            if profile_photo.filename == '':
+                return redirect(url_for('profile'))
+
+            # Generate unique filename
+            filename = secure_filename(f"{current_user.id}_profile_photo_{secrets.token_hex(10)}_{profile_photo.filename}")
+
+            # Save the photo to the uploads folder
+            try:
+                cwd = os.getcwd()+'/'
+                u_cwd = cwd.replace('\\', '/') + url_for('serve_photo', filename=user.profile_photo)
+                os.remove(u_cwd)
+            except Exception as e:
+                # Log the error but don't expose it to the user
+                current_app.logger.error(f"os.remove didn't worked: {str(e)}")
+            profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            message = user.profile_info(current_user.username, filename)
+            flash(message, 'info')
+            return redirect(url_for('profile'))
+
         if 'update_profile' in request.form:
             # Get the updated info from the form
             update_username = request.form['username']
@@ -129,7 +160,11 @@ def profile():
     # Handle GET request (display profile page)
     name = user.name
     email = user.email
-    return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name)
+    filename = user.profile_photo
+    profile_photo = None
+    if filename:   
+        profile_photo = url_for('serve_photo', filename=user.profile_photo)
+    return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name, profile_photo=profile_photo)
 
 # Route for user logout
 @app.route('/logout')

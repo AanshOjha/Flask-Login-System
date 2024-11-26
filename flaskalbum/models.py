@@ -18,6 +18,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    profile_photo = db.Column(db.String(255))
 
     # Relationship with photos (one-to-many) - Keep if you need it
     photos = db.relationship('Photo', backref='user', lazy=True, cascade='all, delete-orphan')
@@ -144,7 +145,19 @@ class User(db.Model, UserMixin):
             db.session.rollback()
             print(e)
             return 'Failed to update information.'
-            
+
+    def profile_info(self, username, profile_photo):
+        #Update user profile photo.
+        try:
+            user = User.query.filter_by(username=username).first()
+            user.profile_photo = profile_photo
+            db.session.commit()
+            return 'Profile photo updated successfully.'
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+            return 'Failed to update profile photo.'
+
     def delete_account(self, username):
         #Delete user account.
         try:
@@ -159,7 +172,7 @@ class User(db.Model, UserMixin):
         
     # When printing the object, return the user's username, email, and name
     def __repr__(self):
-        return f"User(username='{self.username}', email='{self.email}', name='{self.name}')"
+        return f"User(username='{self.username}', email='{self.email}', name='{self.name}, profile_photo='{self.profile_photo}')"
 
 # ===========================================================================
 

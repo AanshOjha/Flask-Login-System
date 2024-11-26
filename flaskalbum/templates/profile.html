@@ -19,16 +19,21 @@
       <div class="row justify-content-center m-4">
         <div class="col-md-5 border-right">
             <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
-              <form action="{{ url_for('profile') }}">
+              <form method="POST" enctype="multipart/form-data" class="mb-8" action="{{ url_for('profile') }}">
+                {% if profile_photo==None %}
                 <img class="profile-img mb-3"  src="../static/img/profile-photo.jpeg">
-
+                {% else %}
+                <img class="profile-img mb-3"  src="{{ profile_photo }}">
+                {% endif %}
+                <input type="file" name="profile_photo" accept="image/*" onclick="show_details()" class="upload-btn mb-4">
+                <button type="submit" name="update_profile" class="btn btn-primary upload-btn" onclick="return confirm('It is recommended to use square photo.')">Update Profile Photo</button>
               </form>
                 
-                <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
+                <!-- <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span> -->
 
                 <!-- Delete function -->
                 <form method="POST" action="{{ url_for('profile') }}">
-                  <input type="submit" name="delete_acc" class="btn btn-primary upload-btn" onclick="return confirm('This will delete all your information. Are you sure?')" value="Delete your account">
+                  <button type="submit" name="delete_acc" class="btn btn-primary upload-btn" onclick="return confirm('This will delete all your information. Are you sure?')">Delete your account</button>
                 </form>
               
             </div>
@@ -49,7 +54,9 @@
                 <label for="email" class="form-label">Email</label>
               <input type="email" class="input-fields form-control" value="{{ email }}" name="email" id="email">
             </div>
-            <div class="text-center"><input class="btn btn-primary upload-btn" type="submit" name="update_profile" value="Update Changes"></div>
+            <div class="text-center">
+              <button class="btn btn-primary upload-btn" type="submit" name="update_profile">Update Changes</button>
+            </div>
             
             
           </form>

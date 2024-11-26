@@ -116,13 +116,6 @@ input[type=password] {
   position: relative;
 }
 
-.wrapper form .submit input{
-  height: 100%;
-  width: 100%;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
 form .pass-link{
   display: flex;
   width: 100%;
@@ -132,8 +125,8 @@ form .pass-link{
   justify-content: space-around;
 }
 
-form .submit input[type="submit"]{
-  color: #fff;
+form .submit button {
+  color: #ffffff; /* Text color */
   border: none;
   padding-left: 0;
   margin-top: -10px;
@@ -144,10 +137,19 @@ form .submit input[type="submit"]{
   background-size: 400% 400%;
   animation: gradient 10s ease infinite;
   transition: all 0.3s ease;
+  text-align: center; /* Center text */
+  line-height: normal; /* Adjust line-height */
 }
 
-form .submit input[type="submit"]:active{
+form .submit button:active {
   transform: scale(0.95);
+}
+
+form .submit button {
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
 form .signup-link{

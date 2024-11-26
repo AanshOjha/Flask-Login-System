@@ -53,7 +53,11 @@
 
           <div class="align-items-center d-flex me-auto me-lg-0">
             <a href="/profile" class="logo align-items-center d-flex me-auto me-lg-0">
-              <img src="../static/img/profile-photo.jpeg" class="rounded-circle rounded-profile-img" alt="My Profile">
+              {% if profile_photo==None %}
+              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="../static/img/profile-photo.jpeg">
+              {% else %}
+              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="{{ profile_photo }}">
+              {% endif %}
             </a>
           <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
           <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
