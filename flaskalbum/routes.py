@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 import secrets
 from flask import render_template, flash, redirect, request, send_from_directory, session, url_for, current_app
@@ -13,7 +12,7 @@ user = User()
 # Route for the home page (login page)
 @app.route('/')
 def index(): 
-    return redirect(url_for('login', title='Login'))
+    return redirect(url_for('login'))
 
 # Route for user registration
 @app.route('/create_user', methods=['GET', 'POST'])
@@ -53,10 +52,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         
         # Check if user exists and password is correct
-        if User.authenticate_user(username, password):  # This is the correct method from Flask-Bcrypt
+        if User.authenticate_user(username, password):
             login_user(user)
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('home'))
+            return redirect(url_for('home'))
         else:
             flash('Login unsuccessful. Please check username and password', 'danger')
     

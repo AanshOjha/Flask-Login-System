@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+import os
 from flask_login import UserMixin
 from flaskalbum import app
 import jwt
 
 # Replace 'db' with your SQLAlchemy instance import
-from flaskalbum import USER_INFO_TABLE, PHOTO_INFO_TABLE, db, bcrypt
+from flaskalbum import db, bcrypt
+USER_INFO_TABLE = os.getenv('USER_INFO_TABLE')
+PHOTO_INFO_TABLE = os.getenv('PHOTO_INFO_TABLE')
 
 class User(db.Model, UserMixin):
     #User model for handling authentication and user management.

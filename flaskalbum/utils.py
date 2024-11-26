@@ -1,9 +1,13 @@
+import os
 import smtplib
 from flask import url_for
-from flaskalbum import EMAIL_ID, EMAIL_PASS, app
+from flaskalbum import app
+
 
 # Function to send a password reset email to the user
 def send_reset_email(user):
+    EMAIL_ID = os.getenv('EMAIL_ID')
+    EMAIL_PASS = os.getenv('EMAIL_PASS')
     # Generate a password reset token and construct the reset email content
     token = user.get_reset_token()
     print(token)
