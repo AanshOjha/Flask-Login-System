@@ -19,16 +19,17 @@
       <div class="row justify-content-center m-4">
         <div class="col-md-5 border-right">
             <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
+              <form action="{{ url_for('profile') }}">
                 <img class="profile-img mb-3"  src="../static/img/profile-photo.jpeg">
+
+              </form>
+                
                 <span class="font-weight-bold">{{ name }}</span><span class="font-weight-bold">{{ email }}</span>
 
                 <!-- Delete function -->
-                <form method="POST" action="/profile">
+                <form method="POST" action="{{ url_for('profile') }}">
                   <input type="submit" name="delete_acc" class="btn btn-primary upload-btn" onclick="return confirm('This will delete all your information. Are you sure?')" value="Delete your account">
-                </form> 
-                <!-- <form style="display: none;" id="confirmDelete" method="POST" action="/profile">
-                  <input  type="submit" class="btn btn-primary upload-btn" name="delete_acc" value="If sure then only click me!">
-                </form> -->
+                </form>
               
             </div>
         </div>
