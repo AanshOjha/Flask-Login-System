@@ -1,3 +1,20 @@
+# Use this locally on Docker
+1. Must have MySQL up and running.
+2. Create a .env file and enter these details:
+```env
+EMAIL_ID=
+EMAIL_PASS=
+MYSQL_HOST=host.docker.internal # Or as required
+MYSQL_USER=
+MYSQL_ROOT_PASSWORD=
+PHOTO_ALBUM_DB=
+USER_INFO_TABLE=
+PHOTO_INFO_TABLE 
+```
+3. Pass on any names you like, and in `EMAIL_ID` and `EMAIL_PASS`, add those credentials which can send password reset emails (Need to have SMTP protocol)
+4. Run this on terminal: `docker run -p 80:80 --env-file .env aanshojha/photo-album`
+
+
 # About This Project :
 > It creates a fully functional Login page
 - 2 Tier Architecture (Frontend - Python {Flask}, Backend - Mysql)
