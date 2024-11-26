@@ -1,19 +1,20 @@
 from flask import Flask
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 from flask_sqlalchemy import SQLAlchemy
-from flask_mysqldb import MySQL
+import mysql.connector
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
 
 # Create Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '5791628bb0b13ce0c676dfde280ba245')
+app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 # Load environment variables
 MYSQL_HOST = os.getenv('MYSQL_HOST')
@@ -21,13 +22,15 @@ MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
 PHOTO_ALBUM_DB = os.getenv('PHOTO_ALBUM_DB')
 
-
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER
 app.config['MYSQL_PASSWORD'] = MYSQL_ROOT_PASSWORD
 
 # Configure upload folder
-UPLOAD_FOLDER = '/uploads'
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Define the upload folder path relative to the current directory
+UPLOAD_FOLDER = os.path.join(current_directory, '..', 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -47,7 +50,6 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 
 # Initialize extensions
 db = SQLAlchemy(app)
-mysql = MySQL(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
@@ -71,7 +73,12 @@ def load_user(user_id):
 
 # Create database if not exists
 def create_database():
-    mycursor = mysql.connection.cursor() 
+    mydb = mysql.connector.connect(
+        host=f"{MYSQL_HOST}",
+        user=f"{MYSQL_USER}",
+        password=f"{MYSQL_ROOT_PASSWORD}"
+    )
+    mycursor = mydb.cursor()
     mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {PHOTO_ALBUM_DB}")
     mycursor.execute(f"USE {PHOTO_ALBUM_DB}")
     mycursor.close()

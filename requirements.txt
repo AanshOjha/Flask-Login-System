@@ -2,7 +2,7 @@ Flask==3.0.0
 Flask-Bcrypt==1.0.1
 PyJWT==2.8.0
 python-dotenv==1.0.0
-flask-sqlalchemy 
-mysql-connector-python
-flask-login
-flask-admin
+flask-sqlalchemy==3.1.1
+mysql-connector-python==9.1.0
+flask-login==0.6.3
+flask-admin==1.6.1
