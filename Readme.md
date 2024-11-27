@@ -42,3 +42,6 @@ PHOTO_INFO_TABLE = photo_info
 > * `MYSQL_HOST` value
 > 1. For local development: `localhost`
 > 2. For docker container to host: `host.docker.internal`
+
+## Demo
+* [Screenshots](https://drive.google.com/drive/folders/1xg2_eAXhRO3Mm3c6d4-09u8ZaiAOuRxZ?usp=sharing)
