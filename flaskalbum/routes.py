@@ -100,7 +100,8 @@ def contact():
 def profile_display():
     if current_user.is_authenticated:
         profile_photo = url_for('serve_photo', filename=current_user.profile_photo)
-    return dict(profile_photo=profile_photo)
+        return dict(profile_photo=profile_photo)
+    return {}
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
