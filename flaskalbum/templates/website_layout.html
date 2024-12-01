@@ -14,7 +14,7 @@
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../static/img/logo.png" rel="icon">
+    <link href="../static/img/logo.jpg" rel="icon">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,7 @@
         <div class="container-fluid d-flex align-items-center justify-content-between">
 
           <a href="/home" class="logo d-flex align-items-center  me-auto me-lg-0">
-            <img src="../static/img/logo.png" alt="">
+            <img src="../static/img/logo.jpg" alt="">
             <h1>PhotoVault - Photo Album</h1>
           </a>
 
@@ -54,9 +54,9 @@
           <div class="align-items-center d-flex me-auto me-lg-0">
             <a href="/profile" class="logo align-items-center d-flex me-auto me-lg-0">
               {% if profile_photo==None %}
-              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="../static/img/profile-photo.jpeg">
+              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="../static/img/profile-photo.jpeg" referrerPolicy="no-referrer">
               {% else %}
-              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="{{ profile_photo }}">
+              <img class="rounded-circle rounded-profile-img" alt="My Profile" src="{{ profile_photo }}" referrerPolicy="no-referrer">
               {% endif %}
             </a>
           <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>

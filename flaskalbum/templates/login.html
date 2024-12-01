@@ -15,10 +15,15 @@
       </div>
    </div>
    <div class="submit">
-      <button type="submit" id="submit_button">Login</button>
+      <button type="submit" name="login" id="submit_button">Login</button>
    </div>
+</form>
+
+<form method="POST" action="{{ url_for('login') }}">
+   <button name="oauth" id="submit_button">Continue with Google</button>
+</form>
    <div class="signup-link">
       Don't have an account? <a href="create_user">Sign up now!</a>
    </div>
-</form>
+
 {% endblock %}

@@ -21,9 +21,9 @@
             <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
               <form method="POST" enctype="multipart/form-data" class="mb-8" action="{{ url_for('profile') }}">
                 {% if profile_photo==None %}
-                <img class="profile-img mb-3"  src="../static/img/profile-photo.jpeg">
+                <img class="profile-img mb-3"  src="../static/img/profile-photo.jpeg" referrerPolicy="no-referrer">
                 {% else %}
-                <img class="profile-img mb-3"  src="{{ profile_photo }}">
+                <img class="profile-img mb-3"  src="{{ profile_photo }}" referrerPolicy="no-referrer">
                 {% endif %}
                 <input type="file" name="profile_photo" accept="image/*" onclick="show_details()" class="upload-btn mb-4">
                 <button type="submit" name="update_profile" class="btn btn-primary upload-btn" onclick="return confirm('It is recommended to use square photo.')">Update Profile Photo</button>
