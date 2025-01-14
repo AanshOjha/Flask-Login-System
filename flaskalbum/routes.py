@@ -99,7 +99,9 @@ def contact():
 @app.context_processor
 def profile_display():
     if current_user.is_authenticated:
-        profile_photo = url_for('serve_photo', filename=current_user.profile_photo)
+        profile_photo = None
+        if current_user.profile_photo:
+            profile_photo = url_for('serve_photo', filename=current_user.profile_photo)
         return dict(profile_photo=profile_photo)
     return {}
 
