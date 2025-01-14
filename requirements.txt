@@ -7,3 +7,4 @@ mysql-connector-python==9.1.0
 flask-login==0.6.3
 flask-admin==1.6.1
 oauthlib==3.0.1
+requests

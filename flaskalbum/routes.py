@@ -1,6 +1,4 @@
-import datetime
 import os
-import random
 import secrets
 from flask import json, render_template, flash, redirect, request, send_from_directory, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
@@ -46,9 +44,6 @@ def create_user():
     # Render the registration form for GET requests
     return render_template('register.html', title='Create Account')
 
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
-
 # Route for user login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,13 +67,13 @@ def login():
         
         if 'oauth' in request.form:
             # Find the Google provider configuration
-            google_provider_cfg = get_google_provider_cfg()
+            google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
             authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
             # Generate the URL to request access from Google's OAuth 2.0 server
             request_uri = client.prepare_request_uri(
                 authorization_endpoint,
-                redirect_uri=request.base_url + "/callback",
+                redirect_uri="http://localhost/login/callback", # request.base_url + "/callback",
                 scope=["openid", "email", "profile"],
             )
             return redirect(request_uri)
@@ -90,7 +85,7 @@ def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
-    google_provider_cfg = get_google_provider_cfg()
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
     # Prepare and send a request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
