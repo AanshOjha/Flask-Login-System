@@ -75,7 +75,7 @@ def login():
             # Generate the URL to request access from Google's OAuth 2.0 server
             request_uri = client.prepare_request_uri(
                 authorization_endpoint,
-                redirect_uri="http://localhost/login/callback", # request.base_url + "/callback",
+                redirect_uri=f"{os.environ.get('WEBSITE_DOMAIN')}/login/callback", # request.base_url + "/callback",
                 scope=["openid", "email", "profile"],
             )
             return redirect(request_uri)
