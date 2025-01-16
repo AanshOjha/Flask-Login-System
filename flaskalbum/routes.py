@@ -195,7 +195,7 @@ def profile():
             unique_filename = secure_filename(f"{current_user.id}_{profile_photo.filename}")
             # Use FreeImageHost API to upload the photo
             api_url = "https://freeimage.host/api/1/upload"
-            api_key = "6d207e02198a847aa98d0a2a901485a5"  # Replace with your FreeImageHost API key
+            api_key = os.environ.get('IMG_API_KEY')  # Replace with your FreeImageHost API key
             files = {
                 'source': (unique_filename, profile_photo.read()),
             }
@@ -344,7 +344,7 @@ def upload_photo():
         
         # Use FreeImageHost API to upload the photo
         api_url = "https://freeimage.host/api/1/upload"
-        api_key = "6d207e02198a847aa98d0a2a901485a5"  # Replace with your FreeImageHost API key
+        api_key = os.environ.get('IMG_API_KEY')  # Replace with your FreeImageHost API key
         
         files = {
             'source': (unique_filename, photo.read()),
