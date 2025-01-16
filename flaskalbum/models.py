@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+import random
 from flask_login import UserMixin
 from flaskalbum import app
 import jwt
@@ -13,15 +14,15 @@ class User(db.Model, UserMixin):
     #User model for handling authentication and user management.
     __tablename__ = USER_INFO_TABLE  # Replace with your table name if different
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    profile_photo = db.Column(db.String(255))
+    id = db.Column(db.String(100), primary_key=True)
+    username = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
+    password = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    profile_photo = db.Column(db.String(500))
 
     # Relationship with photos (one-to-many) - Keep if you need it
-    photos = db.relationship('Photo', backref='user', lazy=True, cascade='all, delete-orphan')
+    photos = db.relationship('Photo', backref=USER_INFO_TABLE, lazy=True, cascade='all, delete-orphan')
 
     def get_id(self):
         return str(self.id)
@@ -53,7 +54,25 @@ class User(db.Model, UserMixin):
             return True
         except Exception as e:
             db.session.rollback()
+            print(f"Error saving user to the database: {e}")
             return False
+
+    @staticmethod
+    def oauth(data):
+        user = User.query.filter_by(email=data['email']).first()
+        print("\nWohooooooo")
+        print(user)
+        if user:
+            return user
+        else:
+            new_user = User(
+                id=data['id'],
+                name=data['name'],
+                email=data['email'],
+                profile_photo=data['profile_photo'],
+            )
+            new_user.save_to_db()
+            return new_user
 
     @staticmethod
     def create_user(data):
@@ -65,6 +84,7 @@ class User(db.Model, UserMixin):
 
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         new_user = User(
+            id=data['id'],
             name=data['name'],
             email=data['email'],
             username=data['username'],
@@ -180,14 +200,13 @@ class User(db.Model, UserMixin):
 class Photo(db.Model):
     __tablename__ = PHOTO_INFO_TABLE
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=False, default=random.randint(100000, 999999))
     filename = db.Column(db.String(255), nullable=False)
     title = db.Column(db.String(100))
     description = db.Column(db.Text)
     upload_date = db.Column(db.DateTime, default=datetime.now().astimezone())
-    user_id = db.Column(db.Integer, db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
+    user_id = db.Column(db.String(50), db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
     
-    # Add these fields to make it more impressive
     location = db.Column(db.String(100))
     tags = db.Column(db.String(200))
     is_favorite = db.Column(db.Boolean, default=False)

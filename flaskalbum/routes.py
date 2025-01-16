@@ -1,12 +1,18 @@
-import datetime
 import os
 import secrets
-from flask import render_template, flash, redirect, request, send_from_directory, url_for, current_app
+import uuid
+from flask import json, render_template, flash, redirect, request, send_from_directory, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
+import requests
 from flaskalbum.models import Photo, User
 from flaskalbum.utils import send_reset_email
-from flaskalbum import app, db
+from flaskalbum import app, db, client
 from werkzeug.utils import secure_filename
+
+GOOGLE_DISCOVERY_URL = os.getenv('GOOGLE_DISCOVERY_URL')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
 # Create an instance of the User class from models.py
 user = User()
 
@@ -21,6 +27,7 @@ def create_user():
     if request.method == 'POST':
         # Retrieve user registration form data
         data = {
+            'id' : uuid.uuid4().hex,
             'name' : request.form['name'], # Input fields have these names
             'email' : request.form['email'],
             'username' : request.form['username'],
@@ -46,25 +53,87 @@ def login():
         return redirect(url_for('home'))
 
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        if 'login' in request.form:    
+            username = request.form['username']
+            password = request.form['password']
+
+            # Check if user exists and password is correct
+            authenticated_user = User.authenticate_user(username, password)
+            if authenticated_user:
+                print("User authenticated successfully")
+                print(authenticated_user)
+                login_user(authenticated_user)
+                return redirect(url_for('home'))
+            else:
+                flash('Login unsuccessful. Please check username and password', 'danger')
         
-        # Find the user by username
-        user = User.query.filter_by(username=username).first()
-        
-        # Check if user exists and password is correct
-        if User.authenticate_user(username, password):
-            login_user(user)
-            return redirect(url_for('home'))
-        else:
-            flash('Login unsuccessful. Please check username and password', 'danger')
+        if 'oauth' in request.form:
+            # Find the Google provider configuration
+            google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+            authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+            # Generate the URL to request access from Google's OAuth 2.0 server
+            request_uri = client.prepare_request_uri(
+                authorization_endpoint,
+                redirect_uri="http://localhost/login/callback", # request.base_url + "/callback",
+                scope=["openid", "email", "profile"],
+            )
+            return redirect(request_uri)
     
     return render_template('login.html', title='Login')
+
+@app.route("/login/callback")
+def callback():
+    # Get authorization code Google sent back to you
+    code = request.args.get("code")
+
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+    # Prepare and send a request to get tokens! Yay tokens!
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    # Parse the tokens!
+    client.parse_request_body_response(json.dumps(token_response.json())) 
+
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+    if userinfo_response.json().get("email_verified"):
+        id = userinfo_response.json()["sub"]
+        email = userinfo_response.json()["email"]
+        profile_photo = userinfo_response.json()["picture"]
+        name = userinfo_response.json()["name"]
+
+        data = {
+            'id': id,
+            'name': name,
+            'email': email,
+            'profile_photo': profile_photo
+        }
+
+        user = User().oauth(data)
+        print(user)
+        login_user(user)
+        return redirect(url_for('home'))
+        
+    return redirect(url_for('login'))
 
 @app.route('/home')
 @login_required
 def home():
     name = current_user.name
+    print('variable' +app.config['UPLOAD_FOLDER'])
     
     # Get all photos for current user with their details
     photo_details = Photo.query.filter_by(user_id=current_user.id).all()
@@ -99,16 +168,18 @@ def contact():
 @app.context_processor
 def profile_display():
     if current_user.is_authenticated:
-        profile_photo = None
-        if current_user.profile_photo:
-            profile_photo = url_for('serve_photo', filename=current_user.profile_photo)
+        # print('Password: ' + current_user.password)
+        if current_user.password != None: # user is not oauth user
+            profile_photo = ('/uploads/' + current_user.profile_photo) if current_user.profile_photo else None
+        else: # user is oauth user
+            profile_photo = current_user.profile_photo
         return dict(profile_photo=profile_photo)
     return {}
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(email=current_user.email).first()
     print(os.getcwd())
     if request.method == 'POST':
         if 'profile_photo' in request.files:
@@ -166,7 +237,7 @@ def profile():
     filename = user.profile_photo
     profile_photo = None
     if filename:   
-        profile_photo = url_for('serve_photo', filename=user.profile_photo)
+        profile_photo = profile_display().get('profile_photo')
     return render_template('profile.html', title='Profile', username=current_user.username, email=email, name=name, profile_photo=profile_photo)
 
 # Route for user logout
@@ -293,3 +364,27 @@ def delete_photo(photo_id):
     db.session.commit()
     flash('Photo deleted successfully!', 'success')
     return redirect(url_for('home'))
+
+@app.route('/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_photo(photo_id):
+    photo = Photo.query.get_or_404(photo_id)
+    if photo.user_id != current_user.id:
+        flash('Unauthorized access', 'danger')
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        photo.title = request.form['title']
+        photo.description = request.form['description']
+        photo.location = request.form['location']
+        photo.tags = request.form['tags']
+        
+        try:
+            db.session.commit()
+            flash('Photo details updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating photo details.', 'error')
+            current_app.logger.error(f"Error updating photo details: {str(e)}")
+        
+        return redirect(url_for('home'))
+    return render_template('edit_photo.html', title='Edit Photo', photo=photo)

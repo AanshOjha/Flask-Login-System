@@ -10,17 +10,20 @@ from flask_bcrypt import Bcrypt
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 import os
-
+from oauthlib.oauth2 import WebApplicationClient
 
 # Create Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
+
+
 
 # Load environment variables
 MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')
 PHOTO_ALBUM_DB = os.getenv('PHOTO_ALBUM_DB')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
 app.config['MYSQL_HOST'] = MYSQL_HOST
 app.config['MYSQL_USER'] = MYSQL_USER
@@ -54,6 +57,9 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
 
+# OAuth 2.0 client
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
 # Configure login manager
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
@@ -63,11 +69,11 @@ from flaskalbum.models import Photo, User
 
 # User loader callback
 @login_manager.user_loader
-def load_user(user_id):
-    if user_id is None:
+def load_user(id):
+    if id is None:
         return None
     try:
-        return User.query.get(int(user_id))
+        return User.query.get(id)
     except (ValueError, TypeError):
         return None
 
