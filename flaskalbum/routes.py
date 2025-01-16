@@ -72,10 +72,11 @@ def login():
             google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
             authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+            callback_url = f"{os.environ.get('WEBSITE_DOMAIN')}/login/callback"
             # Generate the URL to request access from Google's OAuth 2.0 server
             request_uri = client.prepare_request_uri(
                 authorization_endpoint,
-                redirect_uri=f"{os.environ.get('WEBSITE_DOMAIN')}/login/callback", # request.base_url + "/callback",
+                redirect_uri=callback_url, # request.base_url + "/callback",
                 scope=["openid", "email", "profile"],
             )
             return redirect(request_uri)
@@ -87,13 +88,14 @@ def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
+    callback_url = f"{os.environ.get('WEBSITE_DOMAIN')}/login/callback"
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
     # Prepare and send a request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url=callback_url, # request.base_url,
         code=code
     )
     token_response = requests.post(
