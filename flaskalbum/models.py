@@ -14,15 +14,15 @@ class User(db.Model, UserMixin):
     #User model for handling authentication and user management.
     __tablename__ = USER_INFO_TABLE  # Replace with your table name if different
 
-    id = db.Column(db.String(50), primary_key=True, default=random.randint(100000, 999999))
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(255))
-    profile_photo = db.Column(db.String(255))
+    id = db.Column(db.String(100), primary_key=True)
+    username = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
+    password = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    profile_photo = db.Column(db.String(500))
 
     # Relationship with photos (one-to-many) - Keep if you need it
-    photos = db.relationship('Photo', backref='user', lazy=True, cascade='all, delete-orphan')
+    photos = db.relationship('Photo', backref=USER_INFO_TABLE, lazy=True, cascade='all, delete-orphan')
 
     def get_id(self):
         return str(self.id)
@@ -59,19 +59,20 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def oauth(data):
-        new_user = User(
-            id=data['id'],
-            name=data['name'],
-            email=data['email'],
-            profile_photo=data['profile_photo'],
-        )
-
-        email = User().query.filter_by(email=data['email']).first()
-        if email:
-            return email
+        user = User.query.filter_by(email=data['email']).first()
+        print("\nWohooooooo")
+        print(user)
+        if user:
+            return user
         else:
+            new_user = User(
+                id=data['id'],
+                name=data['name'],
+                email=data['email'],
+                profile_photo=data['profile_photo'],
+            )
             new_user.save_to_db()
-            return User().query.filter_by(email=data['email']).first()
+            return new_user
 
     @staticmethod
     def create_user(data):
@@ -83,6 +84,7 @@ class User(db.Model, UserMixin):
 
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         new_user = User(
+            id=data['id'],
             name=data['name'],
             email=data['email'],
             username=data['username'],

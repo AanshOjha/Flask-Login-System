@@ -69,11 +69,11 @@ from flaskalbum.models import Photo, User
 
 # User loader callback
 @login_manager.user_loader
-def load_user(user_id):
-    if user_id is None:
+def load_user(id):
+    if id is None:
         return None
     try:
-        return User.query.get(int(user_id))
+        return User.query.get(id)
     except (ValueError, TypeError):
         return None
 

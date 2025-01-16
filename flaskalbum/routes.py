@@ -1,5 +1,6 @@
 import os
 import secrets
+import uuid
 from flask import json, render_template, flash, redirect, request, send_from_directory, url_for, current_app
 from flask_login import current_user, login_required, login_user, logout_user
 import requests
@@ -26,6 +27,7 @@ def create_user():
     if request.method == 'POST':
         # Retrieve user registration form data
         data = {
+            'id' : uuid.uuid4().hex,
             'name' : request.form['name'], # Input fields have these names
             'email' : request.form['email'],
             'username' : request.form['username'],
@@ -55,12 +57,12 @@ def login():
             username = request.form['username']
             password = request.form['password']
 
-            # Find the user by username
-            user = User.query.filter_by(username=username).first()
-
             # Check if user exists and password is correct
-            if User.authenticate_user(username, password):
-                login_user(user)
+            authenticated_user = User.authenticate_user(username, password)
+            if authenticated_user:
+                print("User authenticated successfully")
+                print(authenticated_user)
+                login_user(authenticated_user)
                 return redirect(url_for('home'))
             else:
                 flash('Login unsuccessful. Please check username and password', 'danger')
@@ -102,7 +104,7 @@ def callback():
     )
 
     # Parse the tokens!
-    client.parse_request_body_response(json.dumps(token_response.json())) ################################################
+    client.parse_request_body_response(json.dumps(token_response.json())) 
 
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
     uri, headers, body = client.add_token(userinfo_endpoint)
@@ -123,7 +125,7 @@ def callback():
         user = User().oauth(data)
         print(user)
         login_user(user)
-        return redirect(url_for('login'))
+        return redirect(url_for('home'))
         
     return redirect(url_for('login'))
 
@@ -362,3 +364,27 @@ def delete_photo(photo_id):
     db.session.commit()
     flash('Photo deleted successfully!', 'success')
     return redirect(url_for('home'))
+
+@app.route('/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_photo(photo_id):
+    photo = Photo.query.get_or_404(photo_id)
+    if photo.user_id != current_user.id:
+        flash('Unauthorized access', 'danger')
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        photo.title = request.form['title']
+        photo.description = request.form['description']
+        photo.location = request.form['location']
+        photo.tags = request.form['tags']
+        
+        try:
+            db.session.commit()
+            flash('Photo details updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating photo details.', 'error')
+            current_app.logger.error(f"Error updating photo details: {str(e)}")
+        
+        return redirect(url_for('home'))
+    return render_template('edit_photo.html', title='Edit Photo', photo=photo)
