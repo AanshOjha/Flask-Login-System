@@ -135,7 +135,7 @@ def callback():
 @login_required
 def home():
     name = current_user.name
-    print('variable' +app.config['UPLOAD_FOLDER'])
+    print('variable ' +app.config['UPLOAD_FOLDER'])
     
     # Get all photos for current user with their details
     photo_details = Photo.query.filter_by(user_id=current_user.id).all()
@@ -146,7 +146,7 @@ def home():
         if photo.filename:
             photo_data = {
                 'id': photo.id,
-                'url': url_for('serve_photo', filename=photo.filename),
+                'url': photo.image_url,
                 'title': photo.title,
                 'description': photo.description,
                 'location': photo.location,
@@ -172,7 +172,7 @@ def profile_display():
     if current_user.is_authenticated:
         # print('Password: ' + current_user.password)
         if current_user.password != None: # user is not oauth user
-            profile_photo = ('/uploads/' + current_user.profile_photo) if current_user.profile_photo else None
+            profile_photo = (current_user.profile_photo) if current_user.profile_photo else None
         else: # user is oauth user
             profile_photo = current_user.profile_photo
         return dict(profile_photo=profile_photo)
@@ -190,22 +190,33 @@ def profile():
 
             profile_photo = request.files['profile_photo']
             if profile_photo.filename == '':
+                flash('No file selected', 'error')
                 return redirect(url_for('profile'))
+            unique_filename = secure_filename(f"{current_user.id}_{profile_photo.filename}")
+            # Use FreeImageHost API to upload the photo
+            api_url = "https://freeimage.host/api/1/upload"
+            api_key = "6d207e02198a847aa98d0a2a901485a5"  # Replace with your FreeImageHost API key
+            files = {
+                'source': (unique_filename, profile_photo.read()),
+            }
+            data = {
+                'key': api_key,
+                'action': 'upload',
+            }
+            response = requests.post(api_url, files=files, data=data)
+            response_data = response.json()
+            if response.status_code == 200 and response_data.get('status_code') == 200:
+                # Extract image URL from the response
+                image_url = response_data['image']['url']
+                # Update user's profile photo URL
+                user.profile_photo = image_url
+                print("user: "+str(image_url))
+                db.session.commit()
+                flash('Profile photo updated successfully!', 'success')
+            else:
+                flash('Failed to upload profile photo.', 'error')
+                current_app.logger.error(f"FreeImageHost upload failed: {response_data}")
 
-            # Generate unique filename
-            filename = secure_filename(f"{current_user.id}_profile_photo_{secrets.token_hex(10)}_{profile_photo.filename}")
-
-            # Save the photo to the uploads folder
-            try:
-                cwd = os.getcwd()+'/'
-                u_cwd = cwd.replace('\\', '/') + url_for('serve_photo', filename=user.profile_photo)
-                os.remove(u_cwd)
-            except Exception as e:
-                # Log the error but don't expose it to the user
-                current_app.logger.error(f"os.remove didn't worked: {str(e)}")
-            profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            message = user.profile_info(current_user.username, filename)
-            flash(message, 'info')
             return redirect(url_for('profile'))
 
         if 'update_profile' in request.form:
@@ -319,31 +330,55 @@ def serve_photo(filename):
 @login_required
 def upload_photo():
     if 'photo' not in request.files:
+        flash('No file part in the request.', 'error')
         return redirect(url_for('home'))
 
     photo = request.files['photo']
     if photo.filename == '':
+        flash('No selected file.', 'error')
         return redirect(url_for('home'))
 
-    # Generate unique filename
-    filename = secure_filename(f"{current_user.id}_{secrets.token_hex(10)}_{photo.filename}")
-    
-    # Save photo details to database
-    new_photo = Photo(
-        filename=filename,
-        title=request.form['title'],
-        description=request.form['description'],
-        location=request.form['location'],
-        tags=request.form['tags'],
-        user_id=current_user.id
-    )
-    
     try:
-        db.session.add(new_photo)
-        db.session.commit()
-        # Save the actual file
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], new_photo.filename))
-        flash('Photo uploaded successfully!', 'success')
+        # Generate a unique filename
+        unique_filename = secure_filename(f"{current_user.id}_{photo.filename}")
+        
+        # Use FreeImageHost API to upload the photo
+        api_url = "https://freeimage.host/api/1/upload"
+        api_key = "6d207e02198a847aa98d0a2a901485a5"  # Replace with your FreeImageHost API key
+        
+        files = {
+            'source': (unique_filename, photo.read()),
+        }
+        data = {
+            'key': api_key,
+            'action': 'upload',
+        }
+
+        response = requests.post(api_url, files=files, data=data)
+        response_data = response.json()
+
+        if response.status_code == 200 and response_data.get('status_code') == 200:
+            # Extract image URL from the response
+            image_url = response_data['image']['url']
+            
+            # Save photo details to the database
+            new_photo = Photo(
+                id=uuid.uuid4().hex,
+                filename=unique_filename,  # Store the unique filename
+                title=request.form['title'],
+                description=request.form['description'],
+                location=request.form['location'],
+                tags=request.form['tags'],
+                user_id=current_user.id,
+                image_url=image_url  # Store the uploaded image URL
+            )
+
+            db.session.add(new_photo)
+            db.session.commit()
+            flash('Photo uploaded successfully!', 'success')
+        else:
+            flash('Failed to upload photo to FreeImageHost.', 'error')
+            print(response_data)
     except Exception as e:
         db.session.rollback()
         flash('Error uploading photo.', 'error')
@@ -351,7 +386,7 @@ def upload_photo():
 
     return redirect(url_for('home'))
 
-@app.route('/photo/<int:photo_id>/delete', methods=['POST'])
+@app.route('/photo/<photo_id>/delete', methods=['POST'])
 @login_required
 def delete_photo(photo_id):
     photo = Photo.query.get_or_404(photo_id)
@@ -359,15 +394,13 @@ def delete_photo(photo_id):
         flash('Unauthorized access')
         return redirect(url_for('home'))
     
-    # Delete file from uploads folder
-    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
     # Delete database record
     db.session.delete(photo)
     db.session.commit()
     flash('Photo deleted successfully!', 'success')
     return redirect(url_for('home'))
 
-@app.route('/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
+@app.route('/photo/<photo_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_photo(photo_id):
     photo = Photo.query.get_or_404(photo_id)

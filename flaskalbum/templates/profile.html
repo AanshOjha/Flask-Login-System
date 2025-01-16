@@ -21,7 +21,7 @@
             <div class="profile-info d-flex flex-column align-items-center text-center p-3 py-5">
               <form method="POST" enctype="multipart/form-data" class="mb-8" action="{{ url_for('profile') }}">
                 {% if profile_photo==None %}
-                <img class="profile-img mb-3"  src="../static/img/profile-photo.jpeg" referrerPolicy="no-referrer">
+                <img class="profile-img mb-3"  src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg" referrerPolicy="no-referrer">
                 {% else %}
                 <img class="profile-img mb-3"  src="{{ profile_photo }}" referrerPolicy="no-referrer">
                 {% endif %}

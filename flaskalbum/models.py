@@ -200,13 +200,13 @@ class User(db.Model, UserMixin):
 class Photo(db.Model):
     __tablename__ = PHOTO_INFO_TABLE
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=False, default=random.randint(100000, 999999))
+    id = db.Column(db.String(100), primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     title = db.Column(db.String(100))
     description = db.Column(db.Text)
     upload_date = db.Column(db.DateTime, default=datetime.now().astimezone())
     user_id = db.Column(db.String(50), db.ForeignKey(f'{USER_INFO_TABLE}.id'), nullable=False)
-    
+    image_url = db.Column(db.String(500))
     location = db.Column(db.String(100))
     tags = db.Column(db.String(200))
     is_favorite = db.Column(db.Boolean, default=False)
