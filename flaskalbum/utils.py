@@ -10,7 +10,7 @@ def send_reset_email(user):
     EMAIL_PASS = os.getenv('EMAIL_PASS')
     # Generate a password reset token and construct the reset email content
     token = user.get_reset_token()
-    print(token)
+    
     
     # Email configuration and content
     email_user = EMAIL_ID

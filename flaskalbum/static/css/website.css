@@ -103,6 +103,13 @@ h6 {
   font-family: var(--font-secondary);
 }
 
+.modal-header h2 {
+  font-size: 56px;
+  font-weight: 500;
+  color: #fff;
+  font-family: var(--font-secondary);
+}
+
 @media (max-width: 768px) {
   .page-header h2 {
     font-size: 36px;
@@ -1365,10 +1372,10 @@ h6 {
   display: none;
 }
 
-.delete-btn {
+.action-btn {
   background: none; /* Remove background */
   border: none; /* Remove border */
-  padding: 0; /* Remove padding */
+  padding: 10px; /* Remove padding */
   margin: 0; /* Remove margin */
   cursor: pointer; /* Add pointer cursor */
   outline: none; /* Remove outline */

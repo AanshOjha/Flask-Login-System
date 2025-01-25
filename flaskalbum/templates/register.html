@@ -1,6 +1,6 @@
 {% extends "login_layout.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('create_user') }}">
+<form method="POST" action="{{ url_for('register') }}">
     <div class="form-floating mb-3 info">
       <input type="text" class="input_field form-control" name="name" id="name" placeholder="username" required>
       <label for="name">Name</label>

@@ -39,47 +39,34 @@ class User(db.Model, UserMixin):
     def is_anonymous(self):
         return False
 
-    @classmethod
-    def find_by_username(cls, username):
-        return cls.query.filter_by(username=username).first()
-
-    @classmethod
-    def find_by_email(cls, email):
-        return cls.query.filter_by(email=email).first()
-
-    def save_to_db(self):
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return True
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error saving user to the database: {e}")
-            return False
-
     @staticmethod
     def oauth(data):
+        "If user already exists, return the user object. Otherwise, create a new user and return it."
         user = User.query.filter_by(email=data['email']).first()
-        print("\nWohooooooo")
-        print(user)
+        
         if user:
             return user
         else:
-            new_user = User(
+            user = User(
                 id=data['id'],
                 name=data['name'],
                 email=data['email'],
                 profile_photo=data['profile_photo'],
             )
-            new_user.save_to_db()
-            return new_user
+            db.session.add(user)
+        try:
+            db.session.commit()
+            return user
+        except Exception as e:
+            db.session.rollback()
+            return None
 
     @staticmethod
-    def create_user(data):
-        # Create a new user from registration data.
-        if User.find_by_username(data['username']):
+    def register(data):
+        "Register a new user. First checks if the username and email already exist in the database. If not, it hashes the password and adds the new user to the database."
+        if User.query.filter_by(username=data['username']).first():
             return 'Username already exists!'
-        if User.find_by_email(data['email']):
+        if User.query.filter_by(email=data['email']).first():
             return 'Email address already exists!'
 
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
@@ -91,13 +78,19 @@ class User(db.Model, UserMixin):
             password=hashed_password
         )
 
-        if new_user.save_to_db():
-            return 'Account created successfully. You can now log in.'
-        return 'Something went wrong. Please try again later.'
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            
+            return False
 
     @classmethod
     def authenticate_user(cls, username, password):
-        #Authenticate user with username/email and password.
+        "If username/email exists and password is correct, return the user object."
+
         user = cls.query.filter(
             (cls.username == username) | (cls.email == username)
         ).first()
@@ -107,7 +100,6 @@ class User(db.Model, UserMixin):
         return None
 
     def get_reset_token(self, expires_sec=600):
-        #Generate a timed JWT token for password reset.
         expiration_time = (datetime.now() + timedelta(seconds=expires_sec)).isoformat()
         payload = {
             'email': self.email,
@@ -121,7 +113,6 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def verify_reset_token(token):
-        #Verify the reset token and return user email if valid.
         try:
             payload = jwt.decode(
                 token,
@@ -129,10 +120,10 @@ class User(db.Model, UserMixin):
                 algorithms=['HS256']
             )
             email = payload['email']
-            print(email)
+            
             expiration = datetime.strptime(payload['expiration'], '%Y-%m-%dT%H:%M:%S.%f')
-            print(expiration)
-            print(datetime.now())
+            
+            
             if expiration < datetime.now():
                 return None
             
@@ -144,7 +135,6 @@ class User(db.Model, UserMixin):
 
     @classmethod
     def update_password(cls, email, password):
-        #Update user password.
         user = cls.query.filter_by(email=email).first()
         if user:
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -152,43 +142,29 @@ class User(db.Model, UserMixin):
             return True
         return False
 
-    def update_info(self, username, update_username, name, email):
-        #Update user information.
+    def update_info(username, update_username, name, email):
         try:
             user = User.query.filter_by(username=username).first()
             user.username = update_username
             user.name = name
             user.email = email
             db.session.commit()
-            return 'Information updated successfully.'
+            return True
         except Exception as e:
             db.session.rollback()
             print(e)
-            return 'Failed to update information.'
-
-    def profile_info(self, username, profile_photo):
-        #Update user profile photo.
-        try:
-            user = User.query.filter_by(username=username).first()
-            user.profile_photo = profile_photo
-            db.session.commit()
-            return 'Profile photo updated successfully.'
-        except Exception as e:
-            db.session.rollback()
-            print(e)
-            return 'Failed to update profile photo.'
+            return False
 
     def delete_account(self, username):
-        #Delete user account.
         try:
             user_to_delete = User.query.filter_by(username=username).first()
             db.session.delete(user_to_delete)
             db.session.commit()
-            return 'Account deleted successfully.'
+            return True
         except Exception as e:
             db.session.rollback()
             print(e)
-            return 'Failed to delete account.'
+            return False
         
     # When printing the object, return the user's username, email, and name
     def __repr__(self):
