@@ -31,11 +31,19 @@ def register():
         }
         
         # display message whether register is success or failed
-        if User.register(data):
+        if User.register(data) == 1:
             message = 'Account created successfully!'
             flash(message, 'success')
             return redirect(url_for('login'))
-        else:
+        elif User.register(data) == -1:
+            message = 'Username already exists. Please choose a different one.'
+            flash(message, 'danger')
+            return redirect(url_for('register'))
+        elif User.register(data) == -2:
+            message = 'Email already exists. Please choose a different one.'
+            flash(message, 'danger')
+            return redirect(url_for('register'))
+        elif User.register(data) == 0:
             message = 'Account creation failed. Please try again.'
             flash(message, 'danger')
             return redirect(url_for('register'))

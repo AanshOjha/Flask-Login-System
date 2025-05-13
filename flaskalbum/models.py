@@ -50,6 +50,7 @@ class User(db.Model, UserMixin):
             user = User(
                 id=data['id'],
                 name=data['name'],
+                username=data['email'].split('@')[0],
                 email=data['email'],
                 profile_photo=data['profile_photo'],
             )
@@ -65,9 +66,9 @@ class User(db.Model, UserMixin):
     def register(data):
         "Register a new user. First checks if the username and email already exist in the database. If not, it hashes the password and adds the new user to the database."
         if User.query.filter_by(username=data['username']).first():
-            return 'Username already exists!'
+            return -1
         if User.query.filter_by(email=data['email']).first():
-            return 'Email address already exists!'
+            return -2
 
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         new_user = User(
@@ -81,11 +82,11 @@ class User(db.Model, UserMixin):
         try:
             db.session.add(new_user)
             db.session.commit()
-            return True
+            return 1
         except Exception as e:
             db.session.rollback()
             
-            return False
+            return 0
 
     @classmethod
     def authenticate_user(cls, username, password):
