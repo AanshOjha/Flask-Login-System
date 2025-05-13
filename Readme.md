@@ -3,6 +3,7 @@
 ## Features
 
 ### User Registration:
+* Simply register using Google OAuth, or
 * Register with a unique username and email.
 * Passwords are stored as hashes.
 * If the username or email is already registered, a warning prompts the user to choose a different one.
@@ -44,4 +45,5 @@ PHOTO_INFO_TABLE = photo_info
 > 2. For docker container to host: `host.docker.internal`
 
 ## Demo
-* [Screenshots](https://drive.google.com/drive/folders/1xg2_eAXhRO3Mm3c6d4-09u8ZaiAOuRxZ?usp=sharing)
+
+* [Video](https://github.com/user-attachments/assets/ab39a6da-3480-4e61-9f8a-9a2a70b897bd)
